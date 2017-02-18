@@ -41,28 +41,28 @@ class PianoInterface {
         ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     for (let i = 0; i < keyboard.length; i++) {
       const key = document.createElement('span');
-      const m_key = keyboard[i].toUpperCase();
+      const m_key = keyboard[i];
       const m_code = codes[i % codes.length] + Math.floor(i / 12 + 4);
       const m_isSharp = isSharp[i % isSharp.length];
-      piano.appendChild(key);
-      key.classList.add('pianokey');
-      key.innerText = m_code + '\n' + m_key;
-      if (m_isSharp === '1') key.classList.add('sharp');
       const hz = FM.index2hx(i);
+      piano.appendChild(key);
+      key.classList.add('piano-key');
+      key.innerText = m_code + '\n' + m_key.toUpperCase();
+      if (m_isSharp === '1') key.classList.add('sharp');
       const press = () => {
         this.fm.regist(hz);
-        key.classList.add('pianoshadow');
+        key.classList.add('piano-press');
       };
       const release = () => {
         this.fm.release(hz);
-        key.classList.remove('pianoshadow');
+        key.classList.remove('piano-press');
       };
       key.addEventListener('mouseenter', press);
       key.addEventListener('mouseleave', release);
       document.addEventListener(
-          'keydown', (e) => { e.key === keyboard[i] && press(); });
+          'keydown', (e) => { e.key === m_key && press(); });
       document.addEventListener(
-          'keyup', (e) => { e.key === keyboard[i] && release(); });
+          'keyup', (e) => { e.key === m_key && release(); });
     }
   }
 }

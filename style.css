@@ -1,15 +1,16 @@
-body {
-    background-color: #999;
+body{
+    background: #fff;
 }
+
 #piano {
     height: 25%;
     width: 100%;
     position: absolute;
 }
-.pianokey {
+.piano-key {
+    background-color:#fff;
     color: #000;
     border: 1px solid #000;
-    background-color:#fff;
     text-align: center;
     display: inline-flex;
     flex-direction: column;
@@ -19,16 +20,18 @@ body {
     width: calc(100% / 20 + 1px);
     margin: 1px;
     border-radius: 0.5em;
+    transition: all 0.1s ease;
 }
 .sharp {
+    background-color: black;
     color: #fff;
     height: 70%;
-    background-color: black;
     margin-left: calc(-50% / 20);
     position: absolute;
 }
 
-.pianoshadow {
-    box-shadow:2px 2px 2px 2px rgba(0, 0, 0, 0.2);
-    border:1px solid #000;
+.piano-press {
+    box-shadow:0px 0px 2px 2px #bbf;
+    text-shadow: 0px 0px 5px 5px #bbf;
+    border: 2px solid #88f;
 }
