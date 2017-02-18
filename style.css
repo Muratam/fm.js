@@ -1,14 +1,15 @@
 body{
-    background: #fff;
+    background: #eef;
 }
 
 #piano {
     height: 25%;
     width: 100%;
+    margin: 10px;
     position: absolute;
 }
 .piano-key {
-    background-color:#fff;
+    background: #fff;
     color: #000;
     border: 1px solid #000;
     text-align: center;
@@ -17,21 +18,29 @@ body{
     align-items: center;
     justify-content: flex-end;
     height: 100%;
-    width: calc(100% / 20 + 1px);
+    width: calc(100% / 14);
     margin: 1px;
-    border-radius: 0.5em;
-    transition: all 0.1s ease;
+    border-radius: 2px;
+    transition: all 0.5s ease;
 }
 .sharp {
-    background-color: black;
+    background: black;
+    opacity: 0.9;
     color: #fff;
     height: 70%;
     margin-left: calc(-50% / 20);
     position: absolute;
 }
-
-.piano-press {
-    box-shadow:0px 0px 2px 2px #bbf;
-    text-shadow: 0px 0px 5px 5px #bbf;
-    border: 2px solid #88f;
+.piano-press{
+    border-radius: 4px;
+    text-shadow: 1px 1px 5px #44f;
+    transition: all 0.05s ease;
+    box-shadow:0px 0px 4px 4px #bbf;
+    border-color: #88f;
+}
+.piano-press:not(.sharp){
+    background: #ddf
+}
+.piano-press.sharp{
+    background:#006;
 }

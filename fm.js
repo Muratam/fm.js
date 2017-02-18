@@ -47,7 +47,7 @@ class PianoInterface {
       const hz = FM.index2hx(i);
       piano.appendChild(key);
       key.classList.add('piano-key');
-      key.innerText = m_code + '\n' + m_key.toUpperCase();
+      key.innerHTML = '<small>' + m_code + '</small><br>' + m_key.toUpperCase();
       if (m_isSharp === '1') key.classList.add('sharp');
       const press = () => {
         this.fm.regist(hz);
