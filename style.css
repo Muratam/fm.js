@@ -1,3 +1,11 @@
+color-list{
+    background: #fff;/* the back */
+    background: #cef;/* メイン1 */
+    background: #adf;/* ちょっと濃い */
+    background: #3be;/* メイン枠 */
+    background: #58b;/* 文字、鍵盤プレス */
+}
+
 * {
     -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
@@ -48,7 +56,6 @@
 .slider .rs-border  {
     border-color: transparent;
 }
-/*.rs-overlay.rs-transition.rs-bg-color{}*/
 .rs-tooltip-text.rs-tooltip{
    margin-top: -10px!important;
    margin-left: -20px!important;
@@ -68,7 +75,7 @@
 
 body{
     background: #cef !important;
-    color: #47a!important;
+    color: #58b!important;
     margin: 10px!important;
 }
 
@@ -105,7 +112,7 @@ body{
 }
 .piano-press{
     transition: all 0.05s ease;
-    border-color: #88f;
+    border-color: #3be;
 }
 .piano-press:not(.sharp){
     background: #cef
