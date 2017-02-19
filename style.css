@@ -1,6 +1,5 @@
 .slider-container{
     display: flex;
-    padding-bottom: 8px;
     width: auto;
 }
 
@@ -11,9 +10,7 @@
     background-color: #cef;
 }
 .slider .rs-handle  {
-    background-color: #cef;
-    padding: 3px;
-    border: 2px solid #cef;
+    opacity: 0;
 }
 .slider .rs-handle.rs-focus  {
     border-color: #3be;
