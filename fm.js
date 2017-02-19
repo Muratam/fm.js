@@ -1,5 +1,6 @@
 'use strict'
 // TODO: Safari のkeycode
+// 全然いい感じの(無料の)FM音源サイトがない…！
 // http://www.hikari-ongaku.com/study/fm.html
 // http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm
 // http://qiita.com/fukuroder/items/e1c2708222bbb51c7634
@@ -240,14 +241,10 @@ class FMSliderView {
         })(x, y);
         sliderContainer.appendChild(slider[0]);
       }
-      /*
-      sliderContainer.appendChild($(
-          '<input type="range" value="0.1" min="0" max="1"
-      step="0.1">0.5</input>')
-                                      [0]);*/
       fmsliders.appendChild(sliderContainer);
     }
-    $('.tuner .edit').removeClass('edit');
+    //$('.tuner .edit').removeClass('edit');
+    $('.edit').removeClass('edit');
   }
   createADSRSldiers() {
     const fmsliderAdsr = $('#fmslider-adsr')[0];
