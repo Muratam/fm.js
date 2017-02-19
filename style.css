@@ -1,6 +1,7 @@
 div#fmsliders{
-    padding: 9px;
+    padding: 10px;
     border:10px solid #3be;
+    max-width: 580px;
     background: #fff;
 }
 .slider-container{
@@ -52,10 +53,9 @@ body{
     border:10px solid #3be;
     background: #3be;
 }
-#pianoroll{
-    width:90%;
-    height :100px;
-    margin-top: 10px;
+#amplitude{
+    width:100%;
+    height :72px;
     max-width: 600px;
     background: #cef;
 }

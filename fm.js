@@ -1,6 +1,9 @@
 'use strict'
 // TODO: Safari のkeycode
-// key.innerHTML = '<small>' + m_code + '</small><br>' + m_key.toUpperCase();
+// http://www.hikari-ongaku.com/study/fm.html
+// http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm
+// http://qiita.com/fukuroder/items/e1c2708222bbb51c7634
+// https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
 console.assert($);
 let vue = new Vue({el: '#FMJS', data: {title: 'FM.js'}});
 vue.title = 'fm.js';
@@ -47,9 +50,8 @@ class FM {
         for (let y = 0; y < FM.operatorNum; y++) {
           gsum += getM(x, y) * ps[y];
         }
-        gs[x] = Math.sin(toFq(
-            now * this.sliderVals[x][FM.operatorNum + 1] + gsum +
-            this.sliderVals[x][FM.operatorNum + 2] / FM.sampleRate));
+        gs[x] =
+            Math.sin(toFq(now * this.sliderVals[x][FM.operatorNum + 1] + gsum));
         sum += gs[x] * this.sliderVals[x][FM.operatorNum] / 200;
       }
       data[i] += sum / 6;
@@ -110,11 +112,11 @@ class PianoInterface {
     }
   }
 }
-class PianoRoll {
+class Amplitude {
   get noteNum() { return 20; }
   constructor(fm) {
     this.fm = fm;
-    this.canvas = document.getElementById('pianoroll');
+    this.canvas = document.getElementById('amplitude');
     if (!this.isOK()) return false;
     [this.w, this.h] = [this.canvas.width, this.canvas.height];
     this.canvas.height *= 2;
@@ -158,7 +160,7 @@ class FMSliderInterface {
     const fmsliders = $('#fmsliders')[0];
     for (let x = 0; x < FM.operatorNum; x++) {
       const sliderContainer = $('<div class="slider-container"></div>')[0];
-      for (let y = 0; y < FM.operatorNum + 3; y++) {
+      for (let y = 0; y < FM.operatorNum + 2; y++) {
         const slider = $('<div class="slider"></div>');
         ((x, y) => {
           let property = {
@@ -182,7 +184,7 @@ class FMSliderInterface {
             property.max = 11.0;
             property.min = 0.0125;
             this.fm.sliderVals[x][y] = property.value = 1;
-            property.step = 0.0005;
+            property.step = 0.0001;
           } else if (y === FM.operatorNum + 2) {
             property.max = 400;
             property.min = 0;
@@ -207,6 +209,6 @@ class FMSliderInterface {
 const fm = new FM();
 const pianoInterface = new PianoInterface(fm);
 const fmsliderInterface = new FMSliderInterface(fm);
-const pianoRoll = new PianoRoll(fm);
+const amplitude = new Amplitude(fm);
 
-pianoRoll.begin();
+amplitude.begin();
