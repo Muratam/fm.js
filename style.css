@@ -1,17 +1,63 @@
+.slider-container{
+    display: flex;
+    background: #fff;
+    padding-bottom: 8px;
+    width: 300px;
+}
+
+.slider .rs-range-color  {
+    background-color: #3be;
+}
+.slider .rs-path-color  {
+    background-color: #cef;
+}
+.slider .rs-handle  {
+    background-color: #cef;
+    padding: 3px;
+    border: 2px solid #cef;
+}
+.slider .rs-handle.rs-focus  {
+    border-color: #3be;
+}
+.slider .rs-handle:after  {
+    border-color: #3be;
+    background-color: #3be;
+}
+.slider .rs-border  {
+    border-color: transparent;
+}
+.rs-tooltip-text{
+   margin-top: -10px!important;
+   margin-left: -15px!important;
+   width: 30px;
+   text-align: center;
+   user-select: none;
+   -moz-user-select: none;
+}
+
+
 body{
-    background: #eef;
+    background: #fca !important;
+    color: #58b!important;
 }
 
 #piano {
-    height: 25%;
-    width: 100%;
+    height: 150px;
+    width: 90%;
     margin: 10px;
     position: absolute;
+    max-width: 600px;
 }
+#pianoroll{
+    width:90%;
+    height :100px;
+    margin: 10px;
+    background: #ddf
+}
+
 .piano-key {
     background: #fff;
-    color: #000;
-    border: 1px solid #000;
+    color: #3be;
     text-align: center;
     display: inline-flex;
     flex-direction: column;
@@ -24,7 +70,7 @@ body{
     transition: all 0.5s ease;
 }
 .sharp {
-    background: black;
+    background: #3be;
     opacity: 0.9;
     color: #fff;
     height: 70%;
@@ -33,14 +79,12 @@ body{
 }
 .piano-press{
     border-radius: 4px;
-    text-shadow: 1px 1px 5px #44f;
     transition: all 0.05s ease;
-    box-shadow:0px 0px 4px 4px #bbf;
-    border-color: #88f;
+   border-color: #88f;
 }
 .piano-press:not(.sharp){
-    background: #ddf
+    background: #cef
 }
 .piano-press.sharp{
-    background:#006;
+    background:#58b;
 }

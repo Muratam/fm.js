@@ -1,5 +1,7 @@
 'use strict'
 // TODO: Safari のkeycode
+// key.innerHTML = '<small>' + m_code + '</small><br>' + m_key.toUpperCase();
+console.assert($);
 class FM {
   static get sampleRate() { return 44100; }
   constructor() {
@@ -9,6 +11,7 @@ class FM {
     this.node = this.context.createScriptProcessor(256, 1, 1);
     this.node.onaudioprocess = (e) => { this.process(e) };
     this.pressed = {};
+    this.play();
   }
   process(e) {
     let data = e.outputBuffer.getChannelData(0);
@@ -47,7 +50,7 @@ class PianoInterface {
       const hz = FM.index2hx(i);
       piano.appendChild(key);
       key.classList.add('piano-key');
-      key.innerHTML = '<small>' + m_code + '</small><br>' + m_key.toUpperCase();
+      key.innerText = m_code + '\n' + m_key.toUpperCase();
       if (m_isSharp === '1') key.classList.add('sharp');
       const press = () => {
         this.fm.regist(hz);
@@ -66,6 +69,81 @@ class PianoInterface {
     }
   }
 }
+class PianoRoll {
+  get noteNum() { return 20; }
+  constructor(fm) {
+    this.fm = fm;
+    this.canvas = document.getElementById('pianoroll');
+    if (!this.isOK()) return false;
+    [this.w, this.h] = [this.canvas.width, this.canvas.height];
+    this.canvas.height *= 2;
+    this.canvas.width *= 2;
+    this.canvas.style.height = Math.floor(this.h / 2);
+    this.canvas.style.width = Math.floor(this.w / 2);
+    this.ctx = this.canvas.getContext('2d');
+    [this.w, this.h] = [this.canvas.width, this.canvas.height];
+  }
+  isOK() { return this.canvas && this.canvas.getContext; }
+  renderBackGround() {
+    this.ctx.lineWidth = 2;
+    this.ctx.imageSmoothingEnabled = false;
+    for (let i = 0; i < this.noteNum; i++) {
+      this.ctx.beginPath();
+      const y = i * this.h / this.noteNum;
+      this.ctx.moveTo(0.5, y + 0.5);
+      this.ctx.lineTo(this.w + 0.5, y + 0.5);
+      this.ctx.stroke();
+    }
+  }
+  begin() {
+    if (!this.isOK()) return;
+    let x = 0;
+    const renderLoop = () => {
+      this.ctx.clearRect(0, 0, this.w, this.h);
+      this.renderBackGround();
+      this.ctx.beginPath();
+      this.ctx.strokeRect(x, 0, 10, 10);
+      x = x > this.w ? 0 : x + 1;
+      requestAnimationFrame(renderLoop);
+    };
+    renderLoop();
+  }
+}
+class FMSliderInterface {
+  get operatorNum() { return 6; }
+  constructor(fm) {
+    this.fm = fm;
+    this.createFMSliders();
+  }
+  createFMSliders() {
+    const fmsliders = document.getElementById('fmsliders');
+    for (let x = 0; x < this.operatorNum; x++) {
+      const sliderContainer = $('<div class="slider-container"></div>')[0];
+      for (let y = 0; y < this.operatorNum; y++) {
+        const slider = $('<div class="slider"></div>')[0];
+        sliderContainer.appendChild(slider);
+      }
+      fmsliders.appendChild(sliderContainer);
+    }
+  }
+}
+
 const fm = new FM();
 const pianoInterface = new PianoInterface(fm);
-fm.play();
+const fmsliderInterface = new FMSliderInterface(fm);
+const pianoRoll = new PianoRoll(fm);
+pianoRoll.begin();
+
+$('.slider').roundSlider({
+  radius: 22,
+  width: 11,
+  handleSize: '+11',
+  handleShape: 'dot',
+  circleShape: 'pie',
+  sliderType: 'min-range',
+  value: 0,
+  min: 0,
+  max: 255,
+  startAngle: -45
+});
+$('.edit').removeClass('edit');
