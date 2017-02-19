@@ -144,7 +144,8 @@ class FMSliderInterface {
             min: 0,
             max: 255,
             startAngle: -45,
-            drag: (e) => { this.fm.sliderVals[x][y] = e.value; }
+            drag: (e) => { this.fm.sliderVals[x][y] = e.value; },
+            change: (e) => { this.fm.sliderVals[x][y] = e.value; }
           });
         })(x, y);
         sliderContainer.appendChild(slider[0]);

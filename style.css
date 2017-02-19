@@ -1,7 +1,12 @@
+div#fmsliders{
+    width:265px;
+    border:10px solid #3be;
+    padding-bottom: 10px;
+}
 .slider-container{
     display: flex;
-    width: auto;
 }
+
 
 .slider .rs-range-color  {
     background-color: #3be;
@@ -22,6 +27,7 @@
 .slider .rs-border  {
     border-color: transparent;
 }
+/*.rs-overlay.rs-transition.rs-bg-color{}*/
 .rs-tooltip-text{
    margin-top: -10px!important;
    margin-left: -15px!important;
@@ -42,6 +48,7 @@ body{
     width: auto;
     position: relative;
     max-width: 600px;
+    min-width:400px;
     border:10px solid #3be;
     background: #3be;
 }
@@ -50,7 +57,7 @@ body{
     height :100px;
     margin-top: 10px;
     max-width: 600px;
-    background: #ddf
+    background: #cef;
 }
 
 .piano-key {
