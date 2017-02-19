@@ -26,11 +26,26 @@ class FM {
     this.oneTimeLength = 2048;
     this.node = this.context.createScriptProcessor(this.oneTimeLength, 1, 1);
     this.node.onaudioprocess = (e) => { this.process(e) };
-    this.pressed = {};
-    this.play();
-    this.sliderVals = this.makeMatrix(FM.operatorNum + 2);
     this.gs = new Array(FM.operatorNum);
     this.oneTimeData = new Array(this.oneTimeLength);
+    this.sliderVals = this.makeMatrix(FM.operatorNum + 2);
+    this.adsr = [0.2, 0.05, 0.9, 0.2];  // a,d,r in [0,2] |s in [0,1]
+    this.sustainTime = 20;
+    this.startTime = {};
+    this.endTime = {};
+    this.released = {};
+    this.play();
+  }
+  byADSR(a, d, s, r, startTime, endTime, now) {
+    let t = now - startTime;
+    if (t < 0) return 0;
+    if (t < a) return t / a;
+    t -= a;
+    if (t < d) return s + (1 - s) * (1 - t / d);
+    t = now - endTime;
+    if (t < 0) return s;
+    if (t < r) return s * (1 - t / r);
+    return 0;
   }
   calc(hz, t, data) {
     const toFq = (t) => 2 * Math.PI * t;
@@ -40,6 +55,7 @@ class FM {
     };
     let gs = new Array(FM.operatorNum);
     let ps = new Array(FM.operatorNum);
+    const [a, d, s, r] = this.adsr;
     gs.fill(0);
     for (let i = 0; i < data.length; ++i, t++) {
       const now = (t * hz / FM.sampleRate);
@@ -54,15 +70,16 @@ class FM {
             Math.sin(toFq(now * this.sliderVals[x][FM.operatorNum + 1] + gsum));
         sum += gs[x] * this.sliderVals[x][FM.operatorNum] / 200;
       }
-      data[i] += sum / 6;
+      const adsr = this.byADSR(
+          a, d, s, r, this.startTime[hz], this.endTime[hz], t / FM.sampleRate);
+      data[i] += adsr * sum / 3;
     }
   }
   process(e) {
-    const [a, m] = [200, 100];
     let data = e.outputBuffer.getChannelData(0);
     data.fill(0);  // chrome💢
-    for (const hz in this.pressed) {
-      if (this.pressed[hz] !== 1) continue;
+    for (const hz in this.endTime) {
+      if (this.t / FM.sampleRate > this.endTime[hz] + this.adsr[3]) continue;
       this.calc(hz, this.t, data);
     }
     for (let i = 0; i < data.length; i++) this.oneTimeData[i] = data[i];
@@ -70,8 +87,18 @@ class FM {
   }
   play() { this.node.connect(this.context.destination); }
   pause() { this.node.disconnect(); }
-  regist(key) { this.pressed[key] = 1; }
-  release(key) { this.pressed[key] = 0; }
+  regist(hz) {
+    const now = this.t / FM.sampleRate;
+    if (hz in this.endTime && this.endTime[hz] >= now) return;
+    if (hz in this.released && !this.released[hz]) return;
+    this.startTime[hz] = now;
+    this.endTime[hz] = now + this.sustainTime;
+    this.released[hz] = false;
+  }
+  release(hz) {
+    this.endTime[hz] = Math.min(this.t / FM.sampleRate, this.endTime[hz]);
+    this.released[hz] = true;
+  }
   static index2hx(i, base = 261.2) { return base * Math.pow(2, i / 12); }
 }
 class PianoInterface {
@@ -118,18 +145,12 @@ class Amplitude {
     this.fm = fm;
     this.canvas = document.getElementById('amplitude');
     if (!this.isOK()) return false;
-    [this.w, this.h] = [this.canvas.width, this.canvas.height];
-    this.canvas.height *= 2;
-    this.canvas.width *= 2;
-    this.canvas.style.height = Math.floor(this.h / 2);
-    this.canvas.style.width = Math.floor(this.w / 2);
     this.ctx = this.canvas.getContext('2d');
     [this.w, this.h] = [this.canvas.width, this.canvas.height];
   }
   isOK() { return this.canvas && this.canvas.getContext; }
   renderBackGround() {
-    this.ctx.lineWidth = 2;
-    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.lineWidth = 1;
     this.ctx.strokeStyle = '#3be';
     this.ctx.beginPath();
     this.ctx.moveTo(0, this.h * 0.5);

@@ -1,7 +1,7 @@
 div#fmsliders{
     padding: 10px;
-    border:10px solid #3be;
     max-width: 580px;
+    border:10px solid #3be;
     background: #fff;
 }
 .slider-container{
@@ -9,6 +9,14 @@ div#fmsliders{
     background: #fff;
 }
 
+#amplitude{
+    height :72px;
+    width : calc(100% - 20px);
+    max-width: 600px;
+    border:10px solid #3be;
+    background: #fff;
+    position: relative;
+}
 
 .slider .rs-range-color  {
     background-color: #3be;
@@ -52,12 +60,6 @@ body{
     min-width:400px;
     border:10px solid #3be;
     background: #3be;
-}
-#amplitude{
-    width:100%;
-    height :72px;
-    max-width: 600px;
-    background: #cef;
 }
 
 .piano-key {
