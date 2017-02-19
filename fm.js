@@ -8,7 +8,7 @@ class FM {
     this.t = 0;
     this.context = new (window.AudioContext || window.webkitAudioContext)();
     this.context.samplingRate = FM.sampleRate;
-    this.node = this.context.createScriptProcessor(256, 1, 1);
+    this.node = this.context.createScriptProcessor(512, 1, 1);
     this.node.onaudioprocess = (e) => { this.process(e) };
     this.pressed = {};
     this.play();
@@ -37,20 +37,20 @@ class PianoInterface {
     this.createKeys();
   }
   createKeys() {
-    const piano = document.getElementById('piano');
+    const piano = $('#piano')[0];
     const isSharp = '010100101010';
     const keyboard = 'awsedftgyhujkolp;:[]';
     const codes =
         ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     for (let i = 0; i < keyboard.length; i++) {
-      const key = document.createElement('span');
       const m_key = keyboard[i];
       const m_code = codes[i % codes.length] + Math.floor(i / 12 + 4);
       const m_isSharp = isSharp[i % isSharp.length];
       const hz = FM.index2hx(i);
+      const key = $(
+          `<span class="piano-key">${m_code}<br>${m_key.toUpperCase()}</span>`)
+          [0];
       piano.appendChild(key);
-      key.classList.add('piano-key');
-      key.innerText = m_code + '\n' + m_key.toUpperCase();
       if (m_isSharp === '1') key.classList.add('sharp');
       const press = () => {
         this.fm.regist(hz);
@@ -103,7 +103,7 @@ class PianoRoll {
       this.renderBackGround();
       this.ctx.beginPath();
       this.ctx.strokeRect(x, 0, 10, 10);
-      x = x > this.w ? 0 : x + 1;
+      x = x < 0 ? this.w : x - 1;
       requestAnimationFrame(renderLoop);
     };
     renderLoop();
@@ -116,15 +116,27 @@ class FMSliderInterface {
     this.createFMSliders();
   }
   createFMSliders() {
-    const fmsliders = document.getElementById('fmsliders');
+    const fmsliders = $('#fmsliders')[0];
     for (let x = 0; x < this.operatorNum; x++) {
       const sliderContainer = $('<div class="slider-container"></div>')[0];
       for (let y = 0; y < this.operatorNum; y++) {
-        const slider = $('<div class="slider"></div>')[0];
-        sliderContainer.appendChild(slider);
+        sliderContainer.appendChild($('<div class="slider"></div>')[0]);
       }
       fmsliders.appendChild(sliderContainer);
     }
+    $('.slider').roundSlider({
+      radius: 22,
+      width: 11,
+      handleSize: '+11',
+      handleShape: 'dot',
+      circleShape: 'pie',
+      sliderType: 'min-range',
+      value: 0,
+      min: 0,
+      max: 255,
+      startAngle: -45
+    });
+    $('.edit').removeClass('edit');
   }
 }
 
@@ -133,17 +145,3 @@ const pianoInterface = new PianoInterface(fm);
 const fmsliderInterface = new FMSliderInterface(fm);
 const pianoRoll = new PianoRoll(fm);
 pianoRoll.begin();
-
-$('.slider').roundSlider({
-  radius: 22,
-  width: 11,
-  handleSize: '+11',
-  handleShape: 'dot',
-  circleShape: 'pie',
-  sliderType: 'min-range',
-  value: 0,
-  min: 0,
-  max: 255,
-  startAngle: -45
-});
-$('.edit').removeClass('edit');

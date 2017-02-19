@@ -1,8 +1,6 @@
 .slider-container{
     display: flex;
-    background: #fff;
     padding-bottom: 8px;
-    width: 300px;
 }
 
 .slider .rs-range-color  {
@@ -20,8 +18,8 @@
     border-color: #3be;
 }
 .slider .rs-handle:after  {
-    border-color: #3be;
-    background-color: #3be;
+    border-color: #adf;
+    background-color: #adf;
 }
 .slider .rs-border  {
     border-color: transparent;
@@ -37,21 +35,23 @@
 
 
 body{
-    background: #fca !important;
+    background: #fff !important;
     color: #58b!important;
 }
 
 #piano {
     height: 150px;
-    width: 90%;
-    margin: 10px;
-    position: absolute;
+    width: auto;
+    position: relative;
     max-width: 600px;
+    border:10px solid #2ad;
+    background: #2ad;
 }
 #pianoroll{
     width:90%;
     height :100px;
-    margin: 10px;
+    margin-top: 10px;
+    max-width: 600px;
     background: #ddf
 }
 
@@ -64,23 +64,21 @@ body{
     align-items: center;
     justify-content: flex-end;
     height: 100%;
-    width: calc(100% / 14);
+    width: calc(100% / 13);
     margin: 1px;
     border-radius: 2px;
     transition: all 0.5s ease;
 }
 .sharp {
     background: #3be;
-    opacity: 0.9;
     color: #fff;
     height: 70%;
     margin-left: calc(-50% / 20);
     position: absolute;
 }
 .piano-press{
-    border-radius: 4px;
     transition: all 0.05s ease;
-   border-color: #88f;
+    border-color: #88f;
 }
 .piano-press:not(.sharp){
     background: #cef
