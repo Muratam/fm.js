@@ -2,7 +2,11 @@
 // TODO: Safari のkeycode
 // key.innerHTML = '<small>' + m_code + '</small><br>' + m_key.toUpperCase();
 console.assert($);
+let vue = new Vue({el: '#FMJS', data: {title: 'FM.js'}});
+vue.title = '-----FM.js------';
+
 class FM {
+  static get operatorNum() { return 6; }
   static get sampleRate() { return 44100; }
   constructor() {
     this.t = 0;
@@ -12,14 +16,24 @@ class FM {
     this.node.onaudioprocess = (e) => { this.process(e) };
     this.pressed = {};
     this.play();
+    this.sliderVals = [];
+    for (let x = 0; x < FM.operatorNum; x++) {
+      this.sliderVals.push([]);
+      for (var y = 0; y < FM.operatorNum; y++) {
+        this.sliderVals[x].push(0);
+      }
+    }
   }
   process(e) {
+    const [a, m] = [200, 100];
     let data = e.outputBuffer.getChannelData(0);
     for (let i = 0; i < data.length; ++i, this.t++) {
       data[i] = 0;  // chrome💢
       for (const hz in this.pressed) {
-        if (this.pressed[hz] === 1)
-          data[i] += Math.sin(hz * this.t / FM.sampleRate);
+        if (this.pressed[hz] !== 1) continue;
+        const now = 2 * Math.PI * this.t / FM.sampleRate;
+        const g1 = Math.sin(now * hz);
+        data[i] += Math.sin(now * hz + g1 * this.sliderVals[0][0]);
       }
     }
   }
@@ -27,9 +41,7 @@ class FM {
   pause() { this.node.disconnect(); }
   regist(key) { this.pressed[key] = 1; }
   release(key) { this.pressed[key] = 0; }
-  static index2hx(i, base = 261.6) {
-    return base * Math.pow(2, i / 12) * 2 * Math.PI;
-  }
+  static index2hx(i, base = 523.3) { return base * Math.pow(2, i / 12); }
 }
 class PianoInterface {
   constructor(fm) {
@@ -44,7 +56,7 @@ class PianoInterface {
         ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     for (let i = 0; i < keyboard.length; i++) {
       const m_key = keyboard[i];
-      const m_code = codes[i % codes.length] + Math.floor(i / 12 + 4);
+      const m_code = codes[i % codes.length] + Math.floor(i / 12 + 5);
       const m_isSharp = isSharp[i % isSharp.length];
       const hz = FM.index2hx(i);
       const key = $(
@@ -110,32 +122,35 @@ class PianoRoll {
   }
 }
 class FMSliderInterface {
-  get operatorNum() { return 6; }
   constructor(fm) {
     this.fm = fm;
     this.createFMSliders();
   }
   createFMSliders() {
     const fmsliders = $('#fmsliders')[0];
-    for (let x = 0; x < this.operatorNum; x++) {
+    for (let x = 0; x < FM.operatorNum; x++) {
       const sliderContainer = $('<div class="slider-container"></div>')[0];
-      for (let y = 0; y < this.operatorNum; y++) {
-        sliderContainer.appendChild($('<div class="slider"></div>')[0]);
+      for (let y = 0; y < FM.operatorNum; y++) {
+        const slider = $('<div class="slider"></div>');
+        ((x, y) => {
+          slider.roundSlider({
+            radius: 22,
+            width: 11,
+            handleSize: '+11',
+            handleShape: 'dot',
+            circleShape: 'pie',
+            sliderType: 'min-range',
+            value: 0,
+            min: 0,
+            max: 255,
+            startAngle: -45,
+            drag: (e) => { this.fm.sliderVals[x][y] = e.value; }
+          });
+        })(x, y);
+        sliderContainer.appendChild(slider[0]);
       }
       fmsliders.appendChild(sliderContainer);
     }
-    $('.slider').roundSlider({
-      radius: 22,
-      width: 11,
-      handleSize: '+11',
-      handleShape: 'dot',
-      circleShape: 'pie',
-      sliderType: 'min-range',
-      value: 0,
-      min: 0,
-      max: 255,
-      startAngle: -45
-    });
     $('.edit').removeClass('edit');
   }
 }
@@ -144,4 +159,5 @@ const fm = new FM();
 const pianoInterface = new PianoInterface(fm);
 const fmsliderInterface = new FMSliderInterface(fm);
 const pianoRoll = new PianoRoll(fm);
+
 pianoRoll.begin();

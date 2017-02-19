@@ -1,6 +1,7 @@
 .slider-container{
     display: flex;
     padding-bottom: 8px;
+    width: auto;
 }
 
 .slider .rs-range-color  {
@@ -36,7 +37,7 @@
 
 body{
     background: #fff !important;
-    color: #58b!important;
+    color: #47a!important;
 }
 
 #piano {
@@ -44,8 +45,8 @@ body{
     width: auto;
     position: relative;
     max-width: 600px;
-    border:10px solid #2ad;
-    background: #2ad;
+    border:10px solid #3be;
+    background: #3be;
 }
 #pianoroll{
     width:90%;
