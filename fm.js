@@ -8,34 +8,58 @@ vue.title = '-----FM.js------';
 class FM {
   static get operatorNum() { return 6; }
   static get sampleRate() { return 44100; }
+  makeMatrix(dim) {
+    let res = [];
+    for (let x = 0; x < dim; x++) {
+      res.push([]);
+      for (var y = 0; y < dim; y++) res[x].push(0);
+    }
+    return res;
+  }
   constructor() {
     this.t = 0;
     this.context = new (window.AudioContext || window.webkitAudioContext)();
     this.context.samplingRate = FM.sampleRate;
-    this.node = this.context.createScriptProcessor(512, 1, 1);
+    this.node = this.context.createScriptProcessor(2048, 1, 1);
     this.node.onaudioprocess = (e) => { this.process(e) };
     this.pressed = {};
     this.play();
-    this.sliderVals = [];
-    for (let x = 0; x < FM.operatorNum; x++) {
-      this.sliderVals.push([]);
-      for (var y = 0; y < FM.operatorNum; y++) {
-        this.sliderVals[x].push(0);
+    this.sliderVals = this.makeMatrix(FM.operatorNum + 2);
+    this.gs = new Array(FM.operatorNum);
+  }
+  calc(hz, t, data) {
+    const toFq = (t) => 2 * Math.PI * t;
+    const getM = (x, y) => {
+      const val = this.sliderVals[x][y] / 256 * 100;
+      return val * val / 4800 / (x === y ? 2 : 1);
+    };
+    let gs = new Array(FM.operatorNum);
+    let ps = new Array(FM.operatorNum);
+    gs.fill(0);
+    for (let i = 0; i < data.length; ++i, t++) {
+      const now = (t * hz / FM.sampleRate);
+      let sum = 0;
+      for (let j = 0; j < FM.operatorNum; j++) ps[j] = gs[j];
+      for (let x = 0; x < FM.operatorNum; x++) {
+        let gsum = 0;
+        for (let y = 0; y < FM.operatorNum; y++) {
+          gsum += getM(x, y) * ps[y];
+        }
+        gs[x] = Math.sin(toFq(now + gsum));
+        sum += gs[x] * this.sliderVals[x][FM.operatorNum] / 256;
       }
+      data[i] += sum / 3;
     }
   }
   process(e) {
     const [a, m] = [200, 100];
     let data = e.outputBuffer.getChannelData(0);
-    for (let i = 0; i < data.length; ++i, this.t++) {
-      data[i] = 0;  // chrome💢
-      for (const hz in this.pressed) {
-        if (this.pressed[hz] !== 1) continue;
-        const now = 2 * Math.PI * this.t / FM.sampleRate;
-        const g1 = Math.sin(now * hz);
-        data[i] += Math.sin(now * hz + g1 * this.sliderVals[0][0]);
-      }
+    data.fill(0);  // chrome💢
+    for (const hz in this.pressed) {
+      if (this.pressed[hz] !== 1) continue;
+      this.calc(hz, this.t, data);
     }
+    this.t += data.length;
   }
   play() { this.node.connect(this.context.destination); }
   pause() { this.node.disconnect(); }
@@ -130,7 +154,7 @@ class FMSliderInterface {
     const fmsliders = $('#fmsliders')[0];
     for (let x = 0; x < FM.operatorNum; x++) {
       const sliderContainer = $('<div class="slider-container"></div>')[0];
-      for (let y = 0; y < FM.operatorNum; y++) {
+      for (let y = 0; y < FM.operatorNum + 1; y++) {
         const slider = $('<div class="slider"></div>');
         ((x, y) => {
           slider.roundSlider({
@@ -140,7 +164,7 @@ class FMSliderInterface {
             handleShape: 'dot',
             circleShape: 'pie',
             sliderType: 'min-range',
-            value: 0,
+            value: x === 0 && y === FM.operatorNum ? 255 : 0,
             min: 0,
             max: 255,
             startAngle: -45,
@@ -152,6 +176,7 @@ class FMSliderInterface {
       }
       fmsliders.appendChild(sliderContainer);
     }
+    this.fm.sliderVals[0][FM.operatorNum] = 255;
     $('.edit').removeClass('edit');
   }
 }

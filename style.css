@@ -1,7 +1,6 @@
 div#fmsliders{
-    width:265px;
+    padding: 9px;
     border:10px solid #3be;
-    padding-bottom: 10px;
 }
 .slider-container{
     display: flex;
