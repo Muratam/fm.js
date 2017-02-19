@@ -27,13 +27,12 @@ div#fmsliders{
     border-color: transparent;
 }
 /*.rs-overlay.rs-transition.rs-bg-color{}*/
-.rs-tooltip-text{
+.rs-tooltip-text.rs-tooltip{
    margin-top: -10px!important;
-   margin-left: -15px!important;
-   width: 30px;
+   margin-left: -20px!important;
+   width: 40px;
    text-align: center;
-   user-select: none;
-   -moz-user-select: none;
+   z-index: 20;
 }
 
 

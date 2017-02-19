@@ -45,10 +45,11 @@ class FM {
         for (let y = 0; y < FM.operatorNum; y++) {
           gsum += getM(x, y) * ps[y];
         }
-        gs[x] = Math.sin(toFq(now + gsum));
+        gs[x] =
+            Math.sin(toFq(now * this.sliderVals[x][FM.operatorNum + 1] + gsum));
         sum += gs[x] * this.sliderVals[x][FM.operatorNum] / 256;
       }
-      data[i] += sum / 3;
+      data[i] += sum / 6;
     }
   }
   process(e) {
@@ -154,30 +155,39 @@ class FMSliderInterface {
     const fmsliders = $('#fmsliders')[0];
     for (let x = 0; x < FM.operatorNum; x++) {
       const sliderContainer = $('<div class="slider-container"></div>')[0];
-      for (let y = 0; y < FM.operatorNum + 1; y++) {
+      for (let y = 0; y < FM.operatorNum + 2; y++) {
         const slider = $('<div class="slider"></div>');
         ((x, y) => {
-          slider.roundSlider({
+          let property = {
             radius: 22,
-            width: 11,
+            width: 5,
             handleSize: '+11',
             handleShape: 'dot',
             circleShape: 'pie',
             sliderType: 'min-range',
-            value: x === 0 && y === FM.operatorNum ? 255 : 0,
+            value: 0,
             min: 0,
             max: 255,
             startAngle: -45,
             drag: (e) => { this.fm.sliderVals[x][y] = e.value; },
             change: (e) => { this.fm.sliderVals[x][y] = e.value; }
-          });
+          };
+          if (x === 0 && y === FM.operatorNum)
+            this.fm.sliderVals[x][y] = property.value = 255;
+          if (y == FM.operatorNum) property.width = 11;
+          if (y == FM.operatorNum + 1) {
+            property.max = 4;
+            property.min = 0.125;
+            this.fm.sliderVals[x][y] = property.value = 1;
+            property.step = 0.005;
+          }
+          slider.roundSlider(property);
         })(x, y);
         sliderContainer.appendChild(slider[0]);
       }
       fmsliders.appendChild(sliderContainer);
     }
-    this.fm.sliderVals[0][FM.operatorNum] = 255;
-    $('.edit').removeClass('edit');
+    //$('.edit').removeClass('edit');
   }
 }
 
