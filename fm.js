@@ -5,8 +5,19 @@
 // http://qiita.com/fukuroder/items/e1c2708222bbb51c7634
 // https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
 console.assert($);
-let vue = new Vue({el: '#FMJS', data: {title: 'FM.js'}});
-vue.title = 'fm.js';
+((d, s, id) => {
+  let js, fjs = d.getElementsByTagName(s)[0],
+          p = /^http:/.test(d.location) ? 'http' : 'https';
+  if (!d.getElementById(id)) {
+    js = d.createElement(s);
+    js.id = id;
+    js.src = p + '://platform.twitter.com/widgets.js';
+    fjs.parentNode.insertBefore(js, fjs);
+  }
+})(document, 'script', 'twitter-wjs');
+
+// let vue = new Vue({el: '#FMJS', data: {title: 'FM.js'}});
+// vue.title = 'fm.js';
 
 class FM {
   static get operatorNum() { return 6; }
@@ -75,7 +86,13 @@ class FM {
       data[i] += adsr * sum / 3;
     }
   }
+  findADSR() {
+    for (let i = 0; i < 4; i++) {
+      this.adsr[i] = $('#adsr' + i).slider()[0].value;
+    }
+  }
   process(e) {
+    this.findADSR();
     let data = e.outputBuffer.getChannelData(0);
     data.fill(0);  // chrome💢
     for (const hz in this.endTime) {
@@ -101,7 +118,7 @@ class FM {
   }
   static index2hx(i, base = 261.2) { return base * Math.pow(2, i / 12); }
 }
-class PianoInterface {
+class PianoView {
   constructor(fm) {
     this.fm = fm;
     this.createKeys();
@@ -139,7 +156,7 @@ class PianoInterface {
     }
   }
 }
-class Amplitude {
+class AmplitudeView {
   get noteNum() { return 20; }
   constructor(fm) {
     this.fm = fm;
@@ -172,10 +189,11 @@ class Amplitude {
     renderLoop();
   }
 }
-class FMSliderInterface {
+class FMSliderView {
   constructor(fm) {
     this.fm = fm;
     this.createFMSliders();
+    this.createADSRSldiers();
   }
   createFMSliders() {
     const fmsliders = $('#fmsliders')[0];
@@ -205,6 +223,7 @@ class FMSliderInterface {
             property.max = 11.0;
             property.min = 0.0125;
             this.fm.sliderVals[x][y] = property.value = 1;
+            property.tooltipFormat = (a) => 'x' + a.value;
             property.step = 0.0001;
           } else if (y === FM.operatorNum + 2) {
             property.max = 400;
@@ -212,7 +231,7 @@ class FMSliderInterface {
             this.fm.sliderVals[x][y] = property.value = 0;
             property.step = 2;
           } else {
-            property.tooltipFormat = (a) => a.value + '<br>%';
+            property.tooltipFormat = (a) => a.value + '';
           }
           if (x === 0 && y === FM.operatorNum)
             this.fm.sliderVals[x][y] = property.value = property.max;
@@ -221,15 +240,29 @@ class FMSliderInterface {
         })(x, y);
         sliderContainer.appendChild(slider[0]);
       }
+      /*
+      sliderContainer.appendChild($(
+          '<input type="range" value="0.1" min="0" max="1"
+      step="0.1">0.5</input>')
+                                      [0]);*/
       fmsliders.appendChild(sliderContainer);
     }
     $('.tuner .edit').removeClass('edit');
   }
+  createADSRSldiers() {
+    const fmsliderAdsr = $('#fmslider-adsr')[0];
+    const defaultADSR = [0.2, 0.05, 0.9, 0.2];  // a,d,r in [0,2] |s in [0,1]
+    for (let i = 0; i < 4; i++) {
+      const slider = $(
+          `<div id="adsr${i}" class="adsr" data-slider-min="0" data-slider-max="1" data-slider-step="0.001" data-slider-value="0.8" data-slider-orientation= "vertical" > </div>`);
+      fmsliderAdsr.appendChild(slider[0]);
+      $('#adsr' +
+        i).slider({reversed: true, tooltip: 'always', value: defaultADSR[i]});
+    }
+  }
 }
-
 const fm = new FM();
-const pianoInterface = new PianoInterface(fm);
-const fmsliderInterface = new FMSliderInterface(fm);
-const amplitude = new Amplitude(fm);
-
+const pianoInterface = new PianoView(fm);
+const fmsliderInterface = new FMSliderView(fm);
+const amplitude = new AmplitudeView(fm);
 amplitude.begin();
