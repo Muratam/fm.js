@@ -3,7 +3,7 @@
 // key.innerHTML = '<small>' + m_code + '</small><br>' + m_key.toUpperCase();
 console.assert($);
 let vue = new Vue({el: '#FMJS', data: {title: 'FM.js'}});
-vue.title = '-----FM.js------';
+vue.title = 'fm.js';
 
 class FM {
   static get operatorNum() { return 6; }
@@ -12,7 +12,7 @@ class FM {
     let res = [];
     for (let x = 0; x < dim; x++) {
       res.push([]);
-      for (var y = 0; y < dim; y++) res[x].push(0);
+      for (let y = 0; y < dim; y++) res[x].push(0);
     }
     return res;
   }
@@ -20,18 +20,20 @@ class FM {
     this.t = 0;
     this.context = new (window.AudioContext || window.webkitAudioContext)();
     this.context.samplingRate = FM.sampleRate;
-    this.node = this.context.createScriptProcessor(2048, 1, 1);
+    this.oneTimeLength = 2048;
+    this.node = this.context.createScriptProcessor(this.oneTimeLength, 1, 1);
     this.node.onaudioprocess = (e) => { this.process(e) };
     this.pressed = {};
     this.play();
     this.sliderVals = this.makeMatrix(FM.operatorNum + 2);
     this.gs = new Array(FM.operatorNum);
+    this.oneTimeData = new Array(this.oneTimeLength);
   }
   calc(hz, t, data) {
     const toFq = (t) => 2 * Math.PI * t;
     const getM = (x, y) => {
-      const val = this.sliderVals[x][y] / 256 * 100;
-      return val * val / 4800 / (x === y ? 2 : 1);
+      const val = this.sliderVals[x][y] / 200 * 100;
+      return val * val / FM.sampleRate * 2 / (x === y ? 2 : 1);
     };
     let gs = new Array(FM.operatorNum);
     let ps = new Array(FM.operatorNum);
@@ -45,9 +47,10 @@ class FM {
         for (let y = 0; y < FM.operatorNum; y++) {
           gsum += getM(x, y) * ps[y];
         }
-        gs[x] =
-            Math.sin(toFq(now * this.sliderVals[x][FM.operatorNum + 1] + gsum));
-        sum += gs[x] * this.sliderVals[x][FM.operatorNum] / 256;
+        gs[x] = Math.sin(toFq(
+            now * this.sliderVals[x][FM.operatorNum + 1] + gsum +
+            this.sliderVals[x][FM.operatorNum + 2] / FM.sampleRate));
+        sum += gs[x] * this.sliderVals[x][FM.operatorNum] / 200;
       }
       data[i] += sum / 6;
     }
@@ -60,13 +63,14 @@ class FM {
       if (this.pressed[hz] !== 1) continue;
       this.calc(hz, this.t, data);
     }
+    for (let i = 0; i < data.length; i++) this.oneTimeData[i] = data[i];
     this.t += data.length;
   }
   play() { this.node.connect(this.context.destination); }
   pause() { this.node.disconnect(); }
   regist(key) { this.pressed[key] = 1; }
   release(key) { this.pressed[key] = 0; }
-  static index2hx(i, base = 523.3) { return base * Math.pow(2, i / 12); }
+  static index2hx(i, base = 261.2) { return base * Math.pow(2, i / 12); }
 }
 class PianoInterface {
   constructor(fm) {
@@ -81,7 +85,7 @@ class PianoInterface {
         ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     for (let i = 0; i < keyboard.length; i++) {
       const m_key = keyboard[i];
-      const m_code = codes[i % codes.length] + Math.floor(i / 12 + 5);
+      const m_code = codes[i % codes.length] + Math.floor(i / 12 + 4);
       const m_isSharp = isSharp[i % isSharp.length];
       const hz = FM.index2hx(i);
       const key = $(
@@ -124,23 +128,22 @@ class PianoRoll {
   renderBackGround() {
     this.ctx.lineWidth = 2;
     this.ctx.imageSmoothingEnabled = false;
-    for (let i = 0; i < this.noteNum; i++) {
-      this.ctx.beginPath();
-      const y = i * this.h / this.noteNum;
-      this.ctx.moveTo(0.5, y + 0.5);
-      this.ctx.lineTo(this.w + 0.5, y + 0.5);
-      this.ctx.stroke();
+    this.ctx.strokeStyle = '#3be';
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, this.h * 0.5);
+    for (let i = 0; i < this.fm.oneTimeData.length / 2; i++) {
+      const val = this.fm.oneTimeData[i];
+      const x = this.w * i / this.fm.oneTimeData.length * 2;
+      const y = this.h * (val + 0.5);
+      this.ctx.lineTo(x, y);
     }
+    this.ctx.stroke();
   }
   begin() {
     if (!this.isOK()) return;
-    let x = 0;
     const renderLoop = () => {
       this.ctx.clearRect(0, 0, this.w, this.h);
       this.renderBackGround();
-      this.ctx.beginPath();
-      this.ctx.strokeRect(x, 0, 10, 10);
-      x = x < 0 ? this.w : x - 1;
       requestAnimationFrame(renderLoop);
     };
     renderLoop();
@@ -155,7 +158,7 @@ class FMSliderInterface {
     const fmsliders = $('#fmsliders')[0];
     for (let x = 0; x < FM.operatorNum; x++) {
       const sliderContainer = $('<div class="slider-container"></div>')[0];
-      for (let y = 0; y < FM.operatorNum + 2; y++) {
+      for (let y = 0; y < FM.operatorNum + 3; y++) {
         const slider = $('<div class="slider"></div>');
         ((x, y) => {
           let property = {
@@ -167,27 +170,37 @@ class FMSliderInterface {
             sliderType: 'min-range',
             value: 0,
             min: 0,
-            max: 255,
+            max: 200,
             startAngle: -45,
             drag: (e) => { this.fm.sliderVals[x][y] = e.value; },
             change: (e) => { this.fm.sliderVals[x][y] = e.value; }
           };
-          if (x === 0 && y === FM.operatorNum)
-            this.fm.sliderVals[x][y] = property.value = 255;
-          if (y == FM.operatorNum) property.width = 11;
-          if (y == FM.operatorNum + 1) {
-            property.max = 4;
-            property.min = 0.125;
+          if (y === FM.operatorNum) {
+            property.max = 100;
+            property.width = 11;
+          } else if (y === FM.operatorNum + 1) {
+            property.max = 11.0;
+            property.min = 0.0125;
             this.fm.sliderVals[x][y] = property.value = 1;
-            property.step = 0.005;
+            property.step = 0.0005;
+          } else if (y === FM.operatorNum + 2) {
+            property.max = 400;
+            property.min = 0;
+            this.fm.sliderVals[x][y] = property.value = 0;
+            property.step = 2;
+          } else {
+            property.tooltipFormat = (a) => a.value + '<br>%';
           }
+          if (x === 0 && y === FM.operatorNum)
+            this.fm.sliderVals[x][y] = property.value = property.max;
+          if (y <= FM.operatorNum) slider[0].classList.add('tuner');
           slider.roundSlider(property);
         })(x, y);
         sliderContainer.appendChild(slider[0]);
       }
       fmsliders.appendChild(sliderContainer);
     }
-    //$('.edit').removeClass('edit');
+    $('.tuner .edit').removeClass('edit');
   }
 }
 

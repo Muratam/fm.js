@@ -1,9 +1,11 @@
 div#fmsliders{
     padding: 9px;
     border:10px solid #3be;
+    background: #fff;
 }
 .slider-container{
     display: flex;
+    background: #fff;
 }
 
 
@@ -37,7 +39,7 @@ div#fmsliders{
 
 
 body{
-    background: #fff !important;
+    background: #cef !important;
     color: #47a!important;
 }
 
