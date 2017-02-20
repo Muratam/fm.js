@@ -1,11 +1,3 @@
-color-list{
-    background: #fff;/* the back */
-    background: #cef;/* メイン1 */
-    background: #adf;/* ちょっと濃い */
-    background: #3be;/* メイン枠 */
-    background: #58b;/* 文字、鍵盤プレス */
-}
-
 * {
     -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
@@ -14,8 +6,7 @@ color-list{
 
 #amplitude{
     height :72px;
-    width : 100%;
-    max-width: 800px;
+    width: 512px;
     border:10px solid #3be;
     background: #fff;
 	vertical-align: bottom;
@@ -25,14 +16,13 @@ color-list{
 #fmslider-adsr{
     display: flex;
     padding: 10px;
-    max-width: 800px;
+    width: 512px;
     border:10px solid #3be;
     border-top-width: 0px;
     border-bottom-width: 0px;
     background: #fff;
     align-items: center;
     justify-content: space-between;
-
 }
 .slider-container{
     display: flex;
@@ -56,6 +46,7 @@ color-list{
 .slider .rs-border  {
     border-color: transparent;
 }
+/*.rs-overlay.rs-transition.rs-bg-color{}*/
 .rs-tooltip-text.rs-tooltip{
    margin-top: -10px!important;
    margin-left: -20px!important;
@@ -72,19 +63,25 @@ color-list{
 .slider-selection{
 	background: #cef !important;
 }
+.tooltip-inner{
+    background-color:#3be !important;
+
+}
+.tooltip.right .tooltip-arrow{
+    border-right-color:#3be !important;
+}
+
 
 body{
     background: #cef !important;
-    color: #58b!important;
+    color: #47a!important;
     margin: 10px!important;
 }
 
 #piano {
     height: 150px;
-    width: auto;
+    width: 512px;
     position: relative;
-    max-width: 800px;
-    min-width:400px;
     border:10px solid #3be;
     background: #3be;
 }
@@ -112,7 +109,7 @@ body{
 }
 .piano-press{
     transition: all 0.05s ease;
-    border-color: #3be;
+    border-color: #88f;
 }
 .piano-press:not(.sharp){
     background: #cef
