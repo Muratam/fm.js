@@ -6,8 +6,7 @@
 
 #amplitude{
     height :72px;
-    width : 100%;
-    max-width: 800px;
+    width: 512px;
     border:10px solid #3be;
     background: #fff;
 	vertical-align: bottom;
@@ -17,14 +16,13 @@
 #fmslider-adsr{
     display: flex;
     padding: 10px;
-    max-width: 800px;
+    width: 512px;
     border:10px solid #3be;
     border-top-width: 0px;
     border-bottom-width: 0px;
     background: #fff;
     align-items: center;
     justify-content: space-between;
-
 }
 .slider-container{
     display: flex;
@@ -65,6 +63,14 @@
 .slider-selection{
 	background: #cef !important;
 }
+.tooltip-inner{
+    background-color:#3be !important;
+
+}
+.tooltip.right .tooltip-arrow{
+    border-right-color:#3be !important;
+}
+
 
 body{
     background: #cef !important;
@@ -74,10 +80,8 @@ body{
 
 #piano {
     height: 150px;
-    width: auto;
+    width: 512px;
     position: relative;
-    max-width: 800px;
-    min-width:400px;
     border:10px solid #3be;
     background: #3be;
 }

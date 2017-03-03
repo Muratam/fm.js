@@ -5,6 +5,8 @@
 // http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm
 // http://qiita.com/fukuroder/items/e1c2708222bbb51c7634
 // https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
+// let vue = new Vue({el: '#FMJS', data: {title: 'FM.js'}});
+// vue.title = 'fm.js';
 console.assert($);
 ((d, s, id) => {
   let js, fjs = d.getElementsByTagName(s)[0],
@@ -17,60 +19,34 @@ console.assert($);
   }
 })(document, 'script', 'twitter-wjs');
 
-// let vue = new Vue({el: '#FMJS', data: {title: 'FM.js'}});
-// vue.title = 'fm.js';
 
-class FM {
-  static get operatorNum() { return 6; }
-  static get sampleRate() { return 44100; }
-  makeMatrix(dim) {
-    let res = [];
-    for (let x = 0; x < dim; x++) {
-      res.push([]);
-      for (let y = 0; y < dim; y++) res[x].push(0);
-    }
-    return res;
+class FMInfo {
+  constructor(hz, operators, volumes, ratios, adsr, startTime, endTime) {
+    this.hz = hz;
+    this.operators = operators;
+    this.volumes = volumes;
+    this.ratios = ratios;
+    this.adsr = adsr;
+    this.startTime = startTime;
+    this.endTime = endTime;
   }
-  constructor() {
-    this.t = 0;
-    this.context = new (window.AudioContext || window.webkitAudioContext)();
-    this.context.samplingRate = FM.sampleRate;
-    this.oneTimeLength = 2048;
-    this.node = this.context.createScriptProcessor(this.oneTimeLength, 1, 1);
-    this.node.onaudioprocess = (e) => { this.process(e) };
-    this.gs = new Array(FM.operatorNum);
-    this.oneTimeData = new Array(this.oneTimeLength);
-    this.sliderVals = this.makeMatrix(FM.operatorNum + 2);
-    this.adsr = [0.2, 0.05, 0.9, 0.2];  // a,d,r in [0,2] |s in [0,1]
-    this.sustainTime = 20;
-    this.startTime = {};
-    this.endTime = {};
-    this.released = {};
-    this.play();
+  static create(info) {
+    return new FMInfo(
+        info.hz, info.operators, info.volumes, info.ratios, info.adsr,
+        info.startTime, info.endTime);
   }
-  byADSR(a, d, s, r, startTime, endTime, now) {
-    let t = now - startTime;
-    if (t < 0) return 0;
-    if (t < a) return t / a;
-    t -= a;
-    if (t < d) return s + (1 - s) * (1 - t / d);
-    t = now - endTime;
-    if (t < 0) return s;
-    if (t < r) return s * (1 - t / r);
-    return 0;
-  }
-  calc(hz, t, data) {
+  calc(t, data) {
+    if (t / FM.sampleRate > this.endTime + this.adsr[3]) return;
     const toFq = (t) => 2 * Math.PI * t;
     const getM = (x, y) => {
-      const val = this.sliderVals[x][y] / 200 * 100;
+      const val = this.operators[x][y] / 200 * 100;
       return val * val / FM.sampleRate * 2 / (x === y ? 2 : 1);
     };
     let gs = new Array(FM.operatorNum);
     let ps = new Array(FM.operatorNum);
-    const [a, d, s, r] = this.adsr;
     gs.fill(0);
     for (let i = 0; i < data.length; ++i, t++) {
-      const now = (t * hz / FM.sampleRate);
+      const now = (t * this.hz / FM.sampleRate);
       let sum = 0;
       for (let j = 0; j < FM.operatorNum; j++) ps[j] = gs[j];
       for (let x = 0; x < FM.operatorNum; x++) {
@@ -78,27 +54,108 @@ class FM {
         for (let y = 0; y < FM.operatorNum; y++) {
           gsum += getM(x, y) * ps[y];
         }
-        gs[x] =
-            Math.sin(toFq(now * this.sliderVals[x][FM.operatorNum + 1] + gsum));
-        sum += gs[x] * this.sliderVals[x][FM.operatorNum] / 200;
+        gs[x] = Math.sin(toFq(now * this.ratios[x] + gsum));
+        sum += gs[x] * this.volumes[x] / 200;
       }
-      const adsr = this.byADSR(
-          a, d, s, r, this.startTime[hz], this.endTime[hz], t / FM.sampleRate);
-      data[i] += adsr * sum / 3;
+      data[i] += sum / 3 * this.byADSR(t / FM.sampleRate);
     }
+  }
+  byADSR(now) {
+    const [a, d, s, r] = this.adsr;
+    let t = now - this.startTime;
+    if (t < 0) return 0;
+    if (t < a) return t / a;
+    t -= a;
+    if (t < d) return s + (1 - s) * (1 - t / d);
+    t = now - this.endTime;
+    if (t < 0) return s;
+    if (t < r) return s * (1 - t / r);
+    return 0;
+  }
+}
+class FM {
+  static get operatorNum() { return 6; }
+  static get sampleRate() { return 44100; }
+  static index2hx(i, base = 261.2) { return base * Math.pow(2, i / 12); }
+  static makeMatrix(dim) {
+    let res = [];
+    for (let x = 0; x < dim; x++) {
+      res.push([]);
+      for (let y = 0; y < dim; y++) res[x].push(0);
+    }
+    return res;
+  }
+
+  constructor() {
+    this.t = 0;
+    this.id = new Date().getTime();
+    this.socket = io();
+    this.socket.on(
+        'receive_message', (text) => {this.receivedSocketMessage(text)});
+    this.context = new (window.AudioContext || window.webkitAudioContext)();
+    this.context.samplingRate = FM.sampleRate;
+    this.oneTimeLength = 2048;
+    this.node = this.context.createScriptProcessor(this.oneTimeLength, 1, 1);
+    this.node.onaudioprocess = (e) => { this.process(e) };
+    this.gs = new Array(FM.operatorNum);
+    this.oneTimeData = new Array(this.oneTimeLength);
+    this.sliderVals = FM.makeMatrix(FM.operatorNum + 2);
+    this.released = {};
+    this.sustainTime = 20;
+    this.receivedInfos = {};
+    this.infos = {};
+    this.play();
+  }
+  getOperator(x, y) { return this.sliderVals[x][y]; }
+  getOperators() {
+    let res = FM.makeMatrix(FM.operatorNum);
+    for (let x = 0; x < FM.operatorNum; x++) {
+      for (let y = 0; y < FM.operatorNum; y++) {
+        res[x][y] = this.getOperator(x, y);
+      }
+    }
+    return res;
+  }
+  getVolume(x) { return this.sliderVals[x][FM.operatorNum]; }
+  getVolumes() {
+    let res = new Array(FM.operatorNum);
+    for (let x = 0; x < FM.operatorNum; x++) res[x] = this.getVolume(x);
+    return res;
+  }
+  getRatio(x) { return this.sliderVals[x][FM.operatorNum + 1]; }
+  getRatios() {
+    let res = new Array(FM.operatorNum);
+    for (let x = 0; x < FM.operatorNum; x++) res[x] = this.getRatio(x);
+    return res;
   }
   findADSR() {
+    let adsr = new Array(4);
     for (let i = 0; i < 4; i++) {
-      this.adsr[i] = $('#adsr' + i).slider()[0].value;
+      adsr[i] = $('#adsr' + i).slider()[0].value;
     }
+    return adsr;
+  }
+  setSliderVal(x, y, val) { this.sliderVals[x][y] = val; }
+  createInfo(hz, startTime, endTime) {
+    return new FMInfo(
+        hz, this.getOperators(), this.getVolumes(), this.getRatios(),
+        this.findADSR(), startTime, endTime);
   }
   process(e) {
-    this.findADSR();
     let data = e.outputBuffer.getChannelData(0);
     data.fill(0);  // chrome💢
-    for (const hz in this.endTime) {
-      if (this.t / FM.sampleRate > this.endTime[hz] + this.adsr[3]) continue;
-      this.calc(hz, this.t, data);
+    for (const id in this.receivedInfos) {
+      for (const hz in this.receivedInfos[id]) {
+        if (id == this.id) {
+          // 自分のなら上書き
+          let info = this.receivedInfos[id][hz];
+          info.operators = this.getOperators();
+          info.volumes = this.getVolumes();
+          info.ratios = this.getRatios();
+          info.adsr = this.findADSR();
+        }
+        this.receivedInfos[id][hz].calc(this.t, data);
+      }
     }
     for (let i = 0; i < data.length; i++) this.oneTimeData[i] = data[i];
     this.t += data.length;
@@ -106,19 +163,42 @@ class FM {
   play() { this.node.connect(this.context.destination); }
   pause() { this.node.disconnect(); }
   regist(hz) {
-    const now = this.t / FM.sampleRate;
-    if (hz in this.endTime && this.endTime[hz] >= now) return;
     if (hz in this.released && !this.released[hz]) return;
-    this.startTime[hz] = now;
-    this.endTime[hz] = now + this.sustainTime;
+    const now = this.t / FM.sampleRate;
+    if (hz in this.infos && this.infos[hz].endTime >= now) return;
     this.released[hz] = false;
+    this.infos[hz] = this.createInfo(hz, now, now + this.sustainTime);
+    this.sendSocketMessage({status: 'regist', info: this.infos[hz]});
   }
   release(hz) {
-    this.endTime[hz] = Math.min(this.t / FM.sampleRate, this.endTime[hz]);
     this.released[hz] = true;
+    this.infos[hz].endTime =
+        Math.min(this.t / FM.sampleRate, this.infos[hz].endTime);
+    this.sendSocketMessage({status: 'release', info: this.infos[hz]});
   }
-  static index2hx(i, base = 261.2) { return base * Math.pow(2, i / 12); }
+  sendSocketMessage(status) {
+    status.id = this.id;
+    this.socket.emit('send_message', JSON.stringify(status));
+  }
+  receivedSocketMessage(text) {
+    try {
+      const json = JSON.parse(text);
+      const id = json.id;
+      const hz = json.info.hz;
+      if (!(id in this.receivedInfos)) {
+        this.receivedInfos[id] = {};
+      }
+      if (json.status === 'regist') {
+        this.receivedInfos[id][hz] = FMInfo.create(json.info);
+      } else if (json.status === 'release') {
+        this.receivedInfos[id][hz].endTime = json.info.endTime;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
+// FM <= regist & release hz
 class PianoView {
   constructor(fm) {
     this.fm = fm;
@@ -157,6 +237,7 @@ class PianoView {
     }
   }
 }
+// FM => (Amplitude created)adsr
 class AmplitudeView {
   get noteNum() { return 20; }
   constructor(fm) {
@@ -165,6 +246,7 @@ class AmplitudeView {
     if (!this.isOK()) return false;
     this.ctx = this.canvas.getContext('2d');
     [this.w, this.h] = [this.canvas.width, this.canvas.height];
+    this.begin();
   }
   isOK() { return this.canvas && this.canvas.getContext; }
   renderBackGround() {
@@ -190,6 +272,7 @@ class AmplitudeView {
     renderLoop();
   }
 }
+// FM <= fm.sliderVals
 class FMSliderView {
   constructor(fm) {
     this.fm = fm;
@@ -214,8 +297,8 @@ class FMSliderView {
             min: 0,
             max: 200,
             startAngle: -45,
-            drag: (e) => { this.fm.sliderVals[x][y] = e.value; },
-            change: (e) => { this.fm.sliderVals[x][y] = e.value; }
+            drag: (e) => { this.fm.setSliderVal(x, y, e.value); },
+            change: (e) => { this.fm.setSliderVal(x, y, e.value); }
           };
           if (y === FM.operatorNum) {
             property.max = 100;
@@ -223,21 +306,23 @@ class FMSliderView {
           } else if (y === FM.operatorNum + 1) {
             property.max = 11.0;
             property.min = 0.0125;
-            this.fm.sliderVals[x][y] = property.value = 1;
+            property.value = 1;
             property.tooltipFormat = (a) => 'x' + a.value;
             property.step = 0.0001;
           } else if (y === FM.operatorNum + 2) {
             property.max = 400;
             property.min = 0;
-            this.fm.sliderVals[x][y] = property.value = 0;
+            property.value = 0;
             property.step = 2;
           } else {
             property.tooltipFormat = (a) => a.value + '';
           }
-          if (x === 0 && y === FM.operatorNum)
-            this.fm.sliderVals[x][y] = property.value = property.max;
+          if (x === 0 && y === FM.operatorNum) {
+            property.value = property.max;
+          }
           if (y <= FM.operatorNum) slider[0].classList.add('tuner');
           slider.roundSlider(property);
+          this.fm.setSliderVal(x, y, property.value);
         })(x, y);
         sliderContainer.appendChild(slider[0]);
       }
@@ -259,7 +344,6 @@ class FMSliderView {
   }
 }
 const fm = new FM();
-const pianoInterface = new PianoView(fm);
-const fmsliderInterface = new FMSliderView(fm);
-const amplitude = new AmplitudeView(fm);
-amplitude.begin();
+const pianoView = new PianoView(fm);
+const fmSliderView = new FMSliderView(fm);
+const amplitudeView = new AmplitudeView(fm);
