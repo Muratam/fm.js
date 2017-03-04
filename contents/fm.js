@@ -5,8 +5,6 @@
 // http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm
 // http://qiita.com/fukuroder/items/e1c2708222bbb51c7634
 //   https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
-// let vue = new Vue({el: '#FMJS', data: {title: 'FM.js'}});
-// vue.title = 'fm.js';
 
 
 class FMInfo {
