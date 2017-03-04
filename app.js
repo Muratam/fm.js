@@ -1,13 +1,16 @@
 let express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+let app = express();
+let http = require('http').Server(app);
+let io = require('socket.io')(http);
 
 app.use(express.static('./'));
 
 io.on('connection', (socket) => {
-  socket.on(
-      'send_message', (text) => { io.sockets.emit('receive_message', text); });
+  console.log(socket);
+  socket.on('send_message', (text) => {
+    console.log(text);
+    io.sockets.emit('receive_message', text);
+  });
 });
 
 let port = 3000;
