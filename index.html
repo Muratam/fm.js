@@ -26,6 +26,18 @@
 <body>
     <h1>fm.js
         <a class="twitter-share-button" data-size="large" data-dnt="true"></a>
+        <script>
+            ((d, s, id) => {
+                let js, fjs = d.getElementsByTagName(s)[0],
+                    p = /^http:/.test(d.location) ? 'http' : 'https';
+                if (!d.getElementById(id)) {
+                    js = d.createElement(s);
+                    js.id = id;
+                    js.src = p + '://platform.twitter.com/widgets.js';
+                    fjs.parentNode.insertBefore(js, fjs);
+                }
+            })(document, 'script', 'twitter-wjs');
+        </script>
     </h1>
     <canvas id="amplitude"></canvas>
     <div id="fmslider-adsr">

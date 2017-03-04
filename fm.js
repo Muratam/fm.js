@@ -4,20 +4,9 @@
 // http://www.hikari-ongaku.com/study/fm.html
 // http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm
 // http://qiita.com/fukuroder/items/e1c2708222bbb51c7634
-// https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
+//   https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
 // let vue = new Vue({el: '#FMJS', data: {title: 'FM.js'}});
 // vue.title = 'fm.js';
-console.assert($);
-((d, s, id) => {
-  let js, fjs = d.getElementsByTagName(s)[0],
-          p = /^http:/.test(d.location) ? 'http' : 'https';
-  if (!d.getElementById(id)) {
-    js = d.createElement(s);
-    js.id = id;
-    js.src = p + '://platform.twitter.com/widgets.js';
-    fjs.parentNode.insertBefore(js, fjs);
-  }
-})(document, 'script', 'twitter-wjs');
 
 
 class FMInfo {
