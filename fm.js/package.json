@@ -28,6 +28,7 @@
     "sass-loader": "^5.0.1",
     "socket.io-client": "^1.7.3",
     "style-loader": "^0.13.2",
+    "url-loader": "^0.5.8",
     "vue": "^2.2.1",
     "vue-loader": "^11.1.4",
     "vue-template-compiler": "^2.2.1",

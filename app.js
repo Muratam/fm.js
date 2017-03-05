@@ -3,7 +3,7 @@ let app = express();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
 
-app.use(express.static('./fm.js/'));
+app.use(express.static('./fm.js/dist/'));
 
 io.on('connection', (socket) => {
   console.log(socket);

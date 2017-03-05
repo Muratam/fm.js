@@ -26,7 +26,13 @@ module.exports = {
           }
         }
       },
-      {test: /\.css$/, use: ['style-loader', 'css-loader']}, {
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader', {loader: 'css-loader', options: {importLoaders: 1}}
+        ]
+      },
+      {
         test: /\.less$/,
         use: [
           'style-loader', {loader: 'css-loader', options: {importLoaders: 1}},
@@ -37,7 +43,12 @@ module.exports = {
         test: /\.(png|jpg|gif|svg)$/,
         loader: 'file-loader',
         options: {name: '[name].[ext]?[hash]'}
-      }
+      },
+      {test: /\.woff$/, loader: 'url-loader?mimetype=application/font-woff'},
+      {test: /\.woff2$/, loader: 'url-loader?mimetype=application/font-woff'},
+      {test: /\.eot$/, loader: 'url-loader?mimetype=application/font-woff'},
+      {test: /\.ttf$/, loader: 'url-loader?mimetype=application/font-woff'}
+
     ]
   },
   plugins: [

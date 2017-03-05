@@ -5,6 +5,9 @@
 // http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm
 // http://qiita.com/fukuroder/items/e1c2708222bbb51c7634
 //   https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
+import './roundslider.min.css';
 import './style.less';
 import './tw_share';
 import 'bootstrap';
