@@ -5,8 +5,11 @@
 // http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm
 // http://qiita.com/fukuroder/items/e1c2708222bbb51c7634
 //   https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
-
+import './style.less';
 import './tw_share';
+import 'bootstrap';
+import 'bootstrap-slider';
+import './lib/roundslider.min';
 import FM from './fm';
 import PianoView from './piano-view';
 import AmplitudeView from './amplitude-view';

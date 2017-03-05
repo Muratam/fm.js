@@ -1,3 +1,4 @@
+
 export default class AmplitudeView {
   get noteNum() { return 20; }
   constructor(fm) {

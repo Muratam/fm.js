@@ -1,4 +1,6 @@
 import FM from './fm';
+import $ from 'jquery';
+import Vue from 'vue';
 
 export default class VPianoView extends Vue {
   //<div id="vpiano">

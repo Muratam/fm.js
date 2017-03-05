@@ -1,4 +1,6 @@
 import FMInfo from './fm-info';
+import $ from 'jquery';
+import io from 'socket.io-client';
 
 export default class FM {
   static get operatorNum() { return 6; }

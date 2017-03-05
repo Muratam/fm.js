@@ -1,4 +1,6 @@
 import FM from './fm';
+import $ from 'jquery';
+
 
 export default class PianoView {
   constructor(fm) {
