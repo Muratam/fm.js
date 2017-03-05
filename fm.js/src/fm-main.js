@@ -23,3 +23,7 @@ const vpianoView = new VPianoView(fm);
 const pianoView = new PianoView(fm);
 const fmSliderView = new FMSliderView(fm);
 const amplitudeView = new AmplitudeView(fm);
+
+import Vue from 'vue';
+import App from './App.vue';
+new Vue({el: '#app', render: h => h(App)});

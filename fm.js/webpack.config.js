@@ -11,7 +11,7 @@ module.exports = {
   entry: diced,
   output: {
     path: path.resolve(__dirname, './dist'),
-    publicPath: '/dist/',
+    publicPath: '',
     filename: '[name]'
   },
   module: {
@@ -42,7 +42,7 @@ module.exports = {
       {test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/}, {
         test: /\.(png|jpg|gif|svg)$/,
         loader: 'file-loader',
-        options: {name: '[name].[ext]?[hash]'}
+        options: {name: '[path][name].[ext]'}
       },
       {test: /\.woff$/, loader: 'url-loader?mimetype=application/font-woff'},
       {test: /\.woff2$/, loader: 'url-loader?mimetype=application/font-woff'},
@@ -62,12 +62,10 @@ module.exports = {
 
 if (process.env.NODE_ENV === 'production') {
   module.exports.devtool = '#source-map';
-  // http://vue-loader.vuejs.org/en/workflow/production.html
-
   module.exports.plugins = (module.exports.plugins || []).concat([
     new webpack.DefinePlugin({'process.env': {NODE_ENV: '"production"'}}),
     new webpack.optimize.UglifyJsPlugin(
-        {sourceMap: true, compress: {warnings: false}}),
+        {sourceMap: false, compress: {warnings: false}}),
     new webpack.LoaderOptionsPlugin({minimize: true})
   ]);
 }
