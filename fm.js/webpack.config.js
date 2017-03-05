@@ -1,12 +1,18 @@
 var path = require('path');
 var webpack = require('webpack');
 
+let entries = ['./src/fm-main.js'];
+let diced = {};
+for (const entry of entries) {
+  diced[path.basename(entry)] = entry
+}
+
 module.exports = {
-  entry: './src/main.js',
+  entry: diced,
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
-    filename: 'build.js'
+    filename: '[name]'
   },
   module: {
     rules: [
@@ -27,10 +33,13 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    //    new webpack.ProvidePlugin({jQuery: 'jquery', $: 'jquery'}),
+  ],
   resolve: {alias: {'vue$': 'vue/dist/vue.esm.js'}},
   devServer: {historyApiFallback: true, noInfo: true},
   performance: {hints: false},
-  devtool: '#eval-source-map'
+  devtool: '#eval-source-map',
 };
 
 if (process.env.NODE_ENV === 'production') {
