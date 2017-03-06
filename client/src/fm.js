@@ -46,13 +46,13 @@ export default class FM {
     }
     return res;
   }
-  getVolume(x) { return this.sliderVals[x][FM.operatorNum]; }
+  getVolume(y) { return this.sliderVals[FM.operatorNum][y]; }
   getVolumes() {
     let res = new Array(FM.operatorNum);
     for (let x = 0; x < FM.operatorNum; x++) res[x] = this.getVolume(x);
     return res;
   }
-  getRatio(x) { return this.sliderVals[x][FM.operatorNum + 1]; }
+  getRatio(y) { return this.sliderVals[FM.operatorNum + 1][y]; }
   getRatios() {
     let res = new Array(FM.operatorNum);
     for (let x = 0; x < FM.operatorNum; x++) res[x] = this.getRatio(x);

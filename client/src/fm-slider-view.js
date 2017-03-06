@@ -23,16 +23,16 @@ export default class FMSliderView {
         drag: (e) => { fm.setSliderVal(x, y, e.value); },
         change: (e) => { fm.setSliderVal(x, y, e.value); }
       };
-      if (y === FM.operatorNum) {
+      if (x === FM.operatorNum) {
         property.max = 100;
         property.width = 11;
-      } else if (y === FM.operatorNum + 1) {
+      } else if (x === FM.operatorNum + 1) {
         property.max = 11.0;
         property.min = 0.0125;
         property.value = 1;
         property.tooltipFormat = (a) => 'x' + a.value;
         property.step = 0.0001;
-      } else if (y === FM.operatorNum + 2) {
+      } else if (x === FM.operatorNum + 2) {
         property.max = 400;
         property.min = 0;
         property.value = 0;
@@ -40,17 +40,17 @@ export default class FMSliderView {
       } else {
         property.tooltipFormat = (a) => a.value + '';
       }
-      if (x === 0 && y === FM.operatorNum) {
+      if (y === 0 && x === FM.operatorNum) {
         property.value = property.max;
       }
       return property;
     }
     const slider = {
       props: ['x', 'y'],
-      template: `<div class="slider"></div>`,
+      template: `<td class="slider"></td>`,
       mounted() {
         const property = getProperty(this.x, this.y);
-        if (this.y <= FM.operatorNum) this.$el.classList.add('tuner');
+        if (this.x <= FM.operatorNum) this.$el.classList.add('tuner');
         $(this.$el).roundSlider(property);
         $(this.$el).find('.edit').removeClass('edit');
         fm.setSliderVal(this.x, this.y, property.value);
@@ -61,9 +61,9 @@ export default class FMSliderView {
     Vue.component(name, {
       template: `
       <div class="fm-sliders">
-        <div>
-          <fm-h-container v-for="x in ${FM.operatorNum}" :x="x-1"></fm-h-container>
-        </div>
+        <table>
+          <fm-h-container v-for="y in ${FM.operatorNum}" :y="y-1"></fm-h-container>
+        </table>
         <fm-adsr-slider v-for="index in ${defaultADSR.length}" :index="index-1">
         </fm-adsr-slider>
       </div>
@@ -88,11 +88,11 @@ export default class FMSliderView {
           }
         },
         'fm-h-container': {
-          props: ['x'],
+          props: ['y'],
           template: `
-            <div class="slider-container">
-              <slider v-for="y in ${FM.operatorNum + 2}" :x=x :y=y-1></slider>
-            </div>`,
+            <tr class="slider-container">
+              <slider v-for="x in ${FM.operatorNum + 2}" :x=x-1 :y=y></slider>
+            </tr>`,
           components: {slider: slider}
         },
       }
