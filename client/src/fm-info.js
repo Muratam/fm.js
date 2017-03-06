@@ -19,7 +19,7 @@ export default class FMInfo {
     if (t / FM.sampleRate > this.endTime + this.adsr[3]) return;
     const toFq = (t) => 2 * Math.PI * t;
     const getM = (x, y) => {
-      const val = this.operators[x][y] / 200 * 100;
+      const val = this.operators[y][x] / 200 * 100;
       return val * val / FM.sampleRate * 2 / (x === y ? 2 : 1);
     };
     let gs = new Array(FM.operatorNum);
