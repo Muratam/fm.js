@@ -6,6 +6,10 @@ import './lib/roundslider.min.css';
 import 'bootstrap-slider';
 import './lib/roundslider.min';
 
+const sliderSize = 44;
+const tableRowHeadWidth = sliderSize / 2;
+
+
 export default class FMSliderView {
   constructor(fm, name = 'fm-sliders') {
     function getProperty(x, y) {
@@ -63,8 +67,8 @@ export default class FMSliderView {
       <div class="fm-sliders">
         <div>
           <div class="slider-container">
-            <div style="width:22px;"></div>
-            <div v-for="x in ${FM.operatorNum}" style="width: 44px;">{{x}}</div>
+            <div style="width:${tableRowHeadWidth}px;"></div>
+            <div v-for="x in ${FM.operatorNum}" style="width: ${sliderSize}px;">{{x}}</div>
           </div>
           <fm-h-container v-for="y in ${FM.operatorNum}" :y="y-1"></fm-h-container>
         </div>
@@ -95,7 +99,7 @@ export default class FMSliderView {
           props: ['y'],
           template: `
             <div class="slider-container">
-              <div style="width:22px;margin:auto;">{{y + 1}}</div>
+              <div class="center-item"style="width:${tableRowHeadWidth}px;height:${sliderSize};">{{y + 1}}</div>
               <slider v-for="x in ${FM.operatorNum + 2}" :x=x-1 :y=y></slider>
             </div>`,
           components: {slider: slider}
