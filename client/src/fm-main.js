@@ -22,12 +22,8 @@ import FMSliderView from './fm-slider-view';
 import VPianoView from './vpiano-view';
 let fm = new FM();
 new VPianoView(fm);
-new PianoView(fm);
+// new PianoView(fm);
 new FMSliderView(fm);
 new AmplitudeView(fm);
-
 import Vue from 'vue';
-// import App from './App.vue'; new Vue({el: '#app', render: h => h(App)});
-import App from './app';
-new App(fm);
 new Vue({el: '#app'});
