@@ -12,8 +12,6 @@ import './lib/roundslider.min.css';
 import './css/style.less';
 import './tw_share';
 import 'bootstrap';
-import 'bootstrap-slider';
-import './lib/roundslider.min';
 
 import FM from './fm';
 import AmplitudeView from './amplitude-view';
