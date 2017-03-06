@@ -5,6 +5,7 @@ import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
 import './lib/roundslider.min.css';
 import 'bootstrap-slider';
 import './lib/roundslider.min';
+import './adsr-view'
 
 const sliderSize = 44;
 const tableRowHeadWidth = sliderSize / 2;
@@ -85,22 +86,42 @@ export default class FMSliderView {
           </tr>
           <fm-h-container v-for="y in ${FM.operatorNum}" :y="y-1"></fm-h-container>
         </table>
-        <fm-adsr-slider v-for="index in ${defaultADSR.length}" :index="index-1">
-        </fm-adsr-slider>
+        <div>
+          <adsr-view :A=0.2 :D=0.05 :S=0.7 :R=0.2></adsr-view>
+          <div class="adsr-sliders">
+            <fm-adsr-slider v-for="index in ${defaultADSR.length}" :index="index-1">
+            </fm-adsr-slider>
+          </div>
+        </div>
       </div>
       `,
       components: {
         'fm-adsr-slider': {
           template: `
-            <div class="adsr" data-slider-min="0" data-slider-max="1"
-                 data-slider-step="0.001" data-slider-value="0.8"
-                 data-slider-orientation="vertical" >
-            </div>`,
-          props: ['index'],
-          data() { return {value: defaultADSR[this.index]}; },
+            <div>
+              <div class="adsr" data-slider-min="0" data-slider-max="1"
+                  data-slider-step="0.001" data-slider-value="0.8"
+                  data-slider-orientation="vertical" >{{index}}
+              </div>
+              <div style="width:36px;"
+                :class="{ 'adsr-font': index %2 === 0 } "
+                > {{name}}<br>{{value.toFixed(2)}}
+              </div>
+            </div>
+            `,
+          props: ['index'], data() { return {value: defaultADSR[this.index]}; },
+          computed: {name() {
+            return ['A', 'D', 'S', 'R'][this.index];
+          }},
           mounted() {
             $(this.$el)
-                .slider({reversed: true, tooltip: 'always', value: this.value})
+                .children('.adsr')
+                .slider({
+                  reversed: true,
+                  tooltip: 'show',
+                  value: this.value,
+                  tooltip_position: 'left'
+                })
                 .on('change', (e) => {
                   this.value = e.value.newValue;
                   fm.setADSR(this.index, this.value);

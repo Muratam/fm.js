@@ -1,6 +1,6 @@
 import Vue from 'vue';
-const strokeColor = '#555';
-const lineWidth = 1;
+export const strokeColor = '#555';
+export const lineWidth = 1;
 
 export default class AmplitudeView {
   get noteNum() { return 20; }

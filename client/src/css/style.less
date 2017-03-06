@@ -15,7 +15,7 @@
 @piano-press-diff-minus: hsl(208 + 180,40%,15%);
 @piano-sharp-font-color:@font-light-color - #111;
 
-@instrument-width: 512px;
+@instrument-width: 560px;
 @border :4px double @border-color;
 
 * {
@@ -55,11 +55,12 @@ body{
 
 }
 
+
+
 .fm-sliders{
     margin: auto;
-    @padding : 10px;
     display: flex;
-    padding: @padding;
+    padding: 10px;
     width: @instrument-width ;
     border:@border;
     border-top-width: 0px;
@@ -87,6 +88,14 @@ body{
         .rs-bg-color{
             background: @background-color+#090909 ;
         }
+    }
+    .adsr-sliders{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .adsr-font{
+        color: @font-color - #333;
     }
 }
 
