@@ -1,48 +1,60 @@
-@base-light-color:#ffffff;
-@base-border-color:#3be;
-@slider-track-color :#adf ;
-@body-background-color:#cef;
-@font-dark-color: #47a;
-@piano-press-color:#88f;
-@piano-press-sharp-color:#58b;
-@instrument-width: 512px;
+@background-color: #222;
+@accent-color : hsl(208,40%,50%);
+@font-color:hsl(208,15%,77%);
+@border-color: @background-color + #141414;
+@font-dark-color:#111;
+@font-light-color:@font-color;
 
+@slider-track-color : hsl(208,40%,40%);
+@slider-background-color :@border-color;
+
+@pianokey-color : hsl(208,5%,55%);
+@pianosharpkey-color : @border-color;
+@piano-press-diff: #222;
+@piano-sharp-font-color:@font-light-color - #111;
+
+@instrument-width: 512px;
+@border :4px solid @border-color;
 
 * {
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    box-sizing: content-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 body{
-    background: @body-background-color;
-    color: @font-dark-color;
+    background: @background-color;
+    color: @font-color;
     margin: 10px;
-}
-h1,h2 {
-    font-weight: bold;
+    font-weight: normal;
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    h1,h2 { margin:5px; }
+}
+#app,body{
+    text-align: center;
 }
 
 .amplitude{
     height :72px;
     width: @instrument-width;
-    border:10px solid @base-border-color;
-    background: @base-light-color;
+    border: @border;
+    background: @background-color;
 	vertical-align: bottom;
     position: relative;
+
 }
 
 .fm-sliders{
+    margin: auto;
     @padding : 10px;
     display: flex;
     padding: @padding;
-    width: @instrument-width - @padding * 2;
-    border:10px solid @base-border-color;
+    width: @instrument-width ;
+    border:@border;
     border-top-width: 0px;
     border-bottom-width: 0px;
-    background: @base-light-color;
+    background: @background-color;
     align-items: center;
     justify-content: space-between;
     .slider-container{
@@ -52,16 +64,16 @@ h1,h2 {
 
 .slider {
     .rs-range-color  {
-        background-color: @base-border-color;
+        background-color: @slider-track-color;
     }
     .rs-path-color  {
-        background-color: @body-background-color;
+        background-color: @slider-background-color;
     }
     .rs-handle  {
         opacity: 0;
     }
     .rs-handle.rs-focus  {
-        border-color: @base-border-color;
+        border-color: @border-color;
     }
     .rs-handle:after  {
         border-color: @slider-track-color;
@@ -71,6 +83,7 @@ h1,h2 {
         border-color: transparent;
     }
     .rs-tooltip-text.rs-tooltip{
+        color :@font-color;
         margin-top: -10px!important;
         margin-left: -20px!important;
         width: 40px;
@@ -78,32 +91,36 @@ h1,h2 {
         z-index: 20;
     }
     .slider-handle {
-        background:@base-border-color !important;
+        background:@border-color ;
     }
     .slider-track-high {
-        background: @slider-track-color !important;
+        background: @slider-track-color ;
     }
     .slider-selection{
-        background: @body-background-color !important;
+        background: @slider-background-color ;
     }
     .tooltip-inner{
-        background-color:@base-border-color !important;
-
+        background-color:@border-color ;
+        color:@font-light-color;
     }
     .tooltip.right .tooltip-arrow{
-        border-right-color:@base-border-color !important;
+        border-right-color:@border-color ;
+    }
+    .rs-bg-color{
+        background: @background-color ;
     }
 }
 
 .piano{
+    margin: auto;
     height: 150px;
     width: @instrument-width;
     position: relative;
-    border:10px solid @base-border-color;
-    background: @base-border-color;
+    border:@border;
+    background: @border-color;
     .piano-key {
-        background: @base-light-color;
-        color: @base-border-color;
+        background: @pianokey-color;
+        color: @font-dark-color;
         text-align: center;
         display: inline-flex;
         flex-direction: column;
@@ -116,21 +133,20 @@ h1,h2 {
         transition: all 0.5s ease;
     }
     .sharp {
-        background: @base-border-color;
-        color: @base-light-color;
+        background: @pianosharpkey-color;
+        color: @piano-sharp-font-color;
         height: 70%;
         margin-left: calc(-50% / 20);
         position: absolute;
     }
     .piano-press{
         transition: all 0.05s ease;
-        border-color: @piano-press-color;
-    }
-    .piano-press:not(.sharp){
-        background: @body-background-color
-    }
-    .piano-press.sharp{
-        background:@piano-press-sharp-color;
+        &.sharp{
+            background:@pianosharpkey-color+ @piano-press-diff;
+        }
+        &:not(.sharp){
+            background: @pianokey-color - @piano-press-diff;
+        }
     }
 }
 

@@ -1,4 +1,6 @@
 import Vue from 'vue';
+const strokeColor = '#555';
+const lineWidth = 1;
 
 export default class AmplitudeView {
   get noteNum() { return 20; }
@@ -18,17 +20,19 @@ export default class AmplitudeView {
           let ctx = canvas.getContext('2d');
           let [w, h] = [canvas.width, canvas.height];
           ctx.clearRect(0, 0, w, h);
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = '#3be';
+          ctx.lineWidth = lineWidth;
+          ctx.strokeStyle = strokeColor;
           ctx.beginPath();
           ctx.moveTo(0, h * 0.5);
+          let isZero = true;
           for (let i = 0; i < fm.oneTimeData.length / 2; i++) {
             const val = fm.oneTimeData[i];
             const x = w * i / fm.oneTimeData.length * 2;
             const y = h * (val + 0.5);
+            if (val !== 0) isZero = false;
             ctx.lineTo(x, y);
           }
-          ctx.stroke();
+          if (!isZero) ctx.stroke();
         },
       }
     });

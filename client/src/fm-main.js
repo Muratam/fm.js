@@ -8,6 +8,7 @@
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
+import './css/style.less';
 
 import './tw_share';
 import FM from './fm';
@@ -20,4 +21,3 @@ new FMSliderView(fm);
 new AmplitudeView(fm);
 import Vue from 'vue';
 new Vue({el: '#app'});
-import './css/style.less';

@@ -52,8 +52,7 @@ export default class FMSliderView {
         const property = getProperty(this.x, this.y);
         if (this.y <= FM.operatorNum) this.$el.classList.add('tuner');
         $(this.$el).roundSlider(property);
-        if (this.y !== FM.operatorNum + 1)
-          $(this.$el).find('.edit').removeClass('edit');
+        $(this.$el).find('.edit').removeClass('edit');
         fm.setSliderVal(this.x, this.y, property.value);
       }
     };
