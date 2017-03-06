@@ -47,7 +47,7 @@ export default class FMSliderView {
     }
     const slider = {
       props: ['x', 'y'],
-      template: `<td class="slider"></td>`,
+      template: `<div class="slider"></div>`,
       mounted() {
         const property = getProperty(this.x, this.y);
         if (this.x <= FM.operatorNum) this.$el.classList.add('tuner');
@@ -61,9 +61,13 @@ export default class FMSliderView {
     Vue.component(name, {
       template: `
       <div class="fm-sliders">
-        <table>
+        <div>
+          <div class="slider-container">
+            <div style="width:22px;"></div>
+            <div v-for="x in ${FM.operatorNum}" style="width: 44px;">{{x}}</div>
+          </div>
           <fm-h-container v-for="y in ${FM.operatorNum}" :y="y-1"></fm-h-container>
-        </table>
+        </div>
         <fm-adsr-slider v-for="index in ${defaultADSR.length}" :index="index-1">
         </fm-adsr-slider>
       </div>
@@ -90,9 +94,10 @@ export default class FMSliderView {
         'fm-h-container': {
           props: ['y'],
           template: `
-            <tr class="slider-container">
+            <div class="slider-container">
+              <div style="width:22px;margin:auto;">{{y + 1}}</div>
               <slider v-for="x in ${FM.operatorNum + 2}" :x=x-1 :y=y></slider>
-            </tr>`,
+            </div>`,
           components: {slider: slider}
         },
       }
