@@ -29,6 +29,7 @@ export default class FM {
     this.gs = new Array(FM.operatorNum);
     this.oneTimeData = new Array(this.oneTimeLength);
     this.sliderVals = FM.makeMatrix(FM.operatorNum + 2);
+    this.adsr = [0.2, 0.05, 0.9, 0.2];
     this.released = {};
     this.sustainTime = 20;
     this.receivedInfos = {};
@@ -57,18 +58,12 @@ export default class FM {
     for (let x = 0; x < FM.operatorNum; x++) res[x] = this.getRatio(x);
     return res;
   }
-  findADSR() {
-    let adsr = new Array(4);
-    for (let i = 0; i < 4; i++) {
-      adsr[i] = $('#adsr' + i).slider()[0].value;
-    }
-    return adsr;
-  }
+  setADSR(index, val) { this.adsr[index] = val; }
   setSliderVal(x, y, val) { this.sliderVals[x][y] = val; }
   createInfo(hz, startTime, endTime) {
     return new FMInfo(
-        hz, this.getOperators(), this.getVolumes(), this.getRatios(),
-        this.findADSR(), startTime, endTime);
+        hz, this.getOperators(), this.getVolumes(), this.getRatios(), this.adsr,
+        startTime, endTime);
   }
   process(e) {
     let data = e.outputBuffer.getChannelData(0);
@@ -81,7 +76,7 @@ export default class FM {
           info.operators = this.getOperators();
           info.volumes = this.getVolumes();
           info.ratios = this.getRatios();
-          info.adsr = this.findADSR();
+          info.adsr = this.adsr;
         }
         this.receivedInfos[id][hz].calc(this.t, data);
       }

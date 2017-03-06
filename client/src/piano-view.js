@@ -1,42 +1,63 @@
 import FM from './fm';
-import $ from 'jquery';
-
+import Vue from 'vue';
+// props :: readonly, data::var
 
 export default class PianoView {
-  constructor(fm) {
-    this.fm = fm;
-    this.createKeys();
-  }
-  createKeys() {
-    const piano = $('#piano')[0];
-    const isSharp = '010100101010';
-    const keyboard = 'awsedftgyhujkolp;:[]';
+  constructor(fm, name = 'piano') {
+    const isSharps = '010100101010';
+    const keys = 'awsedftgyhujkolp;:[]';
     const codes =
         ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    for (let i = 0; i < keyboard.length; i++) {
-      const m_key = keyboard[i];
-      const m_code = codes[i % codes.length] + Math.floor(i / 12 + 4);
-      const m_isSharp = isSharp[i % isSharp.length];
-      const hz = FM.index2hx(i);
-      const key = $(
-          `<span class="piano-key">${m_code}<br>${m_key.toUpperCase()}</span>`)
-          [0];
-      piano.appendChild(key);
-      if (m_isSharp === '1') key.classList.add('sharp');
-      const press = () => {
-        this.fm.regist(hz);
-        key.classList.add('piano-press');
-      };
-      const release = () => {
-        this.fm.release(hz);
-        key.classList.remove('piano-press');
-      };
-      key.addEventListener('mouseenter', press);
-      key.addEventListener('mouseleave', release);
-      document.addEventListener(
-          'keydown', (e) => { e.key === m_key && press(); });
-      document.addEventListener(
-          'keyup', (e) => { e.key === m_key && release(); });
-    }
+    const keyboardNum = keys.length;
+    Vue.component(name, {
+      methods: {
+        pianos() {
+          return [...Array(keys.length).keys()].map(i => {
+            return {
+              code: codes[i % codes.length] + Math.floor(i / 12 + 4),
+              keyboard: keys[i],
+              issharp: isSharps[i % isSharps.length] == 1,
+              hz: FM.index2hx(i),
+            }
+          });
+        },
+      },
+      template: `
+      <div class="piano">
+        <pianokey  v-for="p in pianos()"
+            :code="p.code" :keyboard="p.keyboard"
+            :issharp="p.issharp" :hz="p.hz">
+        </pianokey>
+      </div>
+      `,
+      components: {
+        pianokey: {
+          created() {
+            document.addEventListener(
+                'keydown', (e) => e.key === this.keyboard && this.press());
+            document.addEventListener(
+                'keyup', (e) => e.key === this.keyboard && this.release());
+          },
+          props: ['code', 'keyboard', 'issharp', 'hz'],
+          data() { return {ispressed: false}; },
+          template: `
+          <span class="piano-key"
+                :class="{'sharp' :issharp,'piano-press':ispressed}"
+                @mouseenter="press" @mouseleave="release">
+            {{code}}<br>{{ keyboard.toUpperCase() }}
+          </span>`,
+          methods: {
+            press() {
+              fm.regist(this.hz);
+              this.ispressed = true;
+            },
+            release() {
+              fm.release(this.hz);
+              this.ispressed = false;
+            },
+          },
+        }
+      },
+    });
   }
 }

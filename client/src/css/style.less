@@ -18,8 +18,14 @@ body{
     color: @font-dark-color;
     margin: 10px;
 }
+h1,h2 {
+    font-weight: bold;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
-#amplitude{
+.amplitude{
     height :72px;
     width: @instrument-width;
     border:10px solid @base-border-color;
@@ -28,7 +34,7 @@ body{
     position: relative;
 }
 
-#fmslider-adsr{
+.fm-sliders{
     @padding : 10px;
     display: flex;
     padding: @padding;
@@ -89,7 +95,7 @@ body{
     }
 }
 
-#piano {
+.piano{
     height: 150px;
     width: @instrument-width;
     position: relative;
