@@ -6,12 +6,11 @@ let diced = {};
 for (const entry of entries) {
   diced[path.basename(entry)] = entry
 }
-
 module.exports = {
   entry: diced,
   output: {
-    path: path.resolve(__dirname, './dist'),
-    publicPath: '',
+    path: path.resolve(__dirname, './root/dist/'),
+    publicPath: '/dist/',
     filename: '[name]'
   },
   module: {
@@ -22,7 +21,11 @@ module.exports = {
         options: {
           loaders: {
             'scss': 'vue-style-loader!css-loader!sass-loader',
-            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
+            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
+            'less': [
+              'vue-style-loader',
+              {loader: 'css-loader', options: {importLoaders: 1}}, 'less-loader'
+            ],
           }
         }
       },
@@ -42,7 +45,7 @@ module.exports = {
       {test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/}, {
         test: /\.(png|jpg|gif|svg)$/,
         loader: 'file-loader',
-        options: {name: '[path][name].[ext]'}
+        options: {name: '[name].[ext]?[hash]'}
       },
       {test: /\.woff$/, loader: 'url-loader?mimetype=application/font-woff'},
       {test: /\.woff2$/, loader: 'url-loader?mimetype=application/font-woff'},
@@ -53,8 +56,14 @@ module.exports = {
   },
   plugins: [
     new webpack.ProvidePlugin({jQuery: 'jquery', $: 'jquery'}),
+    // new HtmlWebpackPlugin(
+    //    {filename: 'index.html', template: 'src/index.html'})
   ],
-  resolve: {alias: {'vue$': 'vue/dist/vue.esm.js'}},
+  resolve: {
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js',
+    }
+  },
   devServer: {historyApiFallback: true, noInfo: true},
   performance: {hints: false},
   devtool: '#eval-source-map',

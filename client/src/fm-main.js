@@ -7,8 +7,8 @@
 //   https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
-import './roundslider.min.css';
-import './style.less';
+import './lib/roundslider.min.css';
+import './css/style.less';
 import './tw_share';
 import 'bootstrap';
 import 'bootstrap-slider';
@@ -23,7 +23,6 @@ const vpianoView = new VPianoView(fm);
 const pianoView = new PianoView(fm);
 const fmSliderView = new FMSliderView(fm);
 const amplitudeView = new AmplitudeView(fm);
-
 import Vue from 'vue';
 import App from './App.vue';
 new Vue({el: '#app', render: h => h(App)});
