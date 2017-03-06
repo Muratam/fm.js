@@ -3,7 +3,7 @@ let app = express();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
 
-app.use(express.static('./contents/'));
+app.use(express.static('./client/root/'));
 
 io.on('connection', (socket) => {
   console.log(socket);
