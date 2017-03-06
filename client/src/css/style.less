@@ -11,7 +11,8 @@
 
 @pianokey-color : @font-light-color  - #222;
 @pianosharpkey-color : @border-color;
-@piano-press-diff: #222;
+@piano-press-diff-plus: hsl(208,40%,20%);
+@piano-press-diff-minus: hsl(208 + 180,40%,15%);
 @piano-sharp-font-color:@font-light-color - #111;
 
 @instrument-width: 512px;
@@ -68,6 +69,24 @@ body{
     justify-content: space-between;
     .slider-container{
         display: flex;
+    }
+    .evens{
+        background: @background-color;
+        .rs-bg-color{
+            background: @background-color ;
+        }
+    }
+    .odds{
+        background: @background-color+#050505;
+        .rs-bg-color{
+            background: @background-color+#050505 ;
+        }
+    }
+    .lighter{
+        background: @background-color+#090909;
+        .rs-bg-color{
+            background: @background-color+#090909 ;
+        }
     }
 }
 
@@ -152,10 +171,10 @@ body{
     .piano-press{
         transition: all 0.05s ease;
         &.sharp{
-            background:@pianosharpkey-color+ @piano-press-diff;
+            background:@pianosharpkey-color+ @piano-press-diff-plus;
         }
         &:not(.sharp){
-            background: @pianokey-color - @piano-press-diff;
+            background: @pianokey-color - @piano-press-diff-minus;
         }
     }
 }

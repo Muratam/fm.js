@@ -51,11 +51,17 @@ export default class FMSliderView {
     }
     const slider = {
       props: ['x', 'y'],
-      template: `<div class="slider"></div>`,
+      template: `
+       <td :class="{
+              evens: ((x<${FM.operatorNum}?x:1)*y+1) % 2 === 0,
+              odds:  ((x<${FM.operatorNum}?x:1)*y+1) % 2 === 1 ,
+              lighter: ((x+1) * (y +1) ) % 2 === 1 && x < ${FM.operatorNum},
+            }">
+         <div class="slider"></div>
+       </td>`,
       mounted() {
         const property = getProperty(this.x, this.y);
-        if (this.x <= FM.operatorNum) this.$el.classList.add('tuner');
-        $(this.$el).roundSlider(property);
+        $(this.$el).find('.slider').roundSlider(property);
         $(this.$el).find('.edit').removeClass('edit');
         fm.setSliderVal(this.x, this.y, property.value);
       }
@@ -65,13 +71,20 @@ export default class FMSliderView {
     Vue.component(name, {
       template: `
       <div class="fm-sliders">
-        <div>
-          <div class="slider-container">
-            <div style="width:${tableRowHeadWidth}px;"></div>
-            <div v-for="x in ${FM.operatorNum}" style="width: ${sliderSize}px;">{{x}}</div>
-          </div>
+        <table>
+          <tr class="slider-container">
+            <td style="width:${tableRowHeadWidth}px;"></td>
+            <td v-for="x in ${FM.operatorNum + 2}"
+                style="width: ${sliderSize}px;"
+                :class="{
+                  evens: x % 2 === 0 && x <= ${FM.operatorNum},
+                  odds:  x % 2 === 1 && x <= ${FM.operatorNum}}">
+                {{x <= ${FM.operatorNum}
+                  ? x : x % 2 === 1 ? "Volume": "Ratio"}}
+            </td>
+          </tr>
           <fm-h-container v-for="y in ${FM.operatorNum}" :y="y-1"></fm-h-container>
-        </div>
+        </table>
         <fm-adsr-slider v-for="index in ${defaultADSR.length}" :index="index-1">
         </fm-adsr-slider>
       </div>
@@ -98,10 +111,14 @@ export default class FMSliderView {
         'fm-h-container': {
           props: ['y'],
           template: `
-            <div class="slider-container">
-              <div class="center-item"style="width:${tableRowHeadWidth}px;height:${sliderSize};">{{y + 1}}</div>
+            <tr class="slider-container">
+              <td class="center-item"
+                  style="width:${tableRowHeadWidth}px;height:${sliderSize};"
+                  :class="{ evens: (y+1) % 2 === 0,odds:(y+1)%2 === 1}">
+                  {{y + 1}}
+              </td>
               <slider v-for="x in ${FM.operatorNum + 2}" :x=x-1 :y=y></slider>
-            </div>`,
+            </tr>`,
           components: {slider: slider}
         },
       }
