@@ -8,7 +8,8 @@ app.use(express.static('./client/root/'));
 io.on('connection', (socket) => {
   console.log(socket);
   socket.on('send_message', (text) => {
-    console.log(text);
+    let json = JSON.parse(text);
+    console.log([json.status, json.id]);
     io.sockets.emit('receive_message', text);
   });
 });

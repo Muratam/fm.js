@@ -16,14 +16,14 @@ export default class FM {
   }
 
   constructor() {
-    this.t = 0;
-    this.id = new Date().getTime();
     this.socket = io();
     this.socket.on(
         'receive_message', (text) => {this.receivedSocketMessage(text)});
     this.context = new (window.AudioContext || window.webkitAudioContext)();
     this.context.samplingRate = FM.sampleRate;
     this.oneTimeLength = 2048;
+    this.t = this.getNowT();
+    this.id = new Date().getTime();
     this.node = this.context.createScriptProcessor(this.oneTimeLength, 1, 1);
     this.node.onaudioprocess = (e) => { this.process(e) };
     this.gs = new Array(FM.operatorNum);
@@ -65,6 +65,12 @@ export default class FM {
         hz, this.getOperators(), this.getVolumes(), this.getRatios(), this.adsr,
         startTime, endTime);
   }
+  getNowT() {
+    return Math.round(
+               new Date().getTime() / 1000 * FM.sampleRate /
+               this.oneTimeLength) *
+        this.oneTimeLength;
+  }
   process(e) {
     let data = e.outputBuffer.getChannelData(0);
     data.fill(0);  // chrome💢
@@ -82,7 +88,11 @@ export default class FM {
       }
     }
     for (let i = 0; i < data.length; i++) this.oneTimeData[i] = data[i];
-    this.t += data.length;
+    if (Math.random() < 0.1) {
+      this.t = this.getNowT();
+    } else {
+      this.t += data.length;
+    }
   }
   play() { this.node.connect(this.context.destination); }
   pause() { this.node.disconnect(); }
@@ -102,6 +112,10 @@ export default class FM {
   }
   sendSocketMessage(status) {
     status.id = this.id;
+    console.log([
+      status.status, this.t / FM.sampleRate, status.info.startTime,
+      this.t / FM.sampleRate - status.info.startTime
+    ]);
     this.socket.emit('send_message', JSON.stringify(status));
   }
   receivedSocketMessage(text) {
@@ -109,6 +123,7 @@ export default class FM {
       const json = JSON.parse(text);
       const id = json.id;
       const hz = json.info.hz;
+      // console.log([json.status, json.info.startTime]);
       if (!(id in this.receivedInfos)) {
         this.receivedInfos[id] = {};
       }

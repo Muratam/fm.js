@@ -25,9 +25,10 @@ export default class AmplitudeView {
           ctx.beginPath();
           ctx.moveTo(0, h * 0.5);
           let isZero = true;
-          for (let i = 0; i < fm.oneTimeData.length / 2; i++) {
+          const dataLen = Math.min(fm.oneTimeData.length, 1024);
+          for (let i = 0; i < dataLen; i++) {
             const val = fm.oneTimeData[i];
-            const x = w * i / fm.oneTimeData.length * 2;
+            const x = w * i / dataLen;
             const y = h * (val + 0.5);
             if (val !== 0) isZero = false;
             ctx.lineTo(x, y);
