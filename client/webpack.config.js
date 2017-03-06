@@ -16,20 +16,6 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.vue$/,
-        loader: 'vue-loader',
-        options: {
-          loaders: {
-            'scss': 'vue-style-loader!css-loader!sass-loader',
-            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
-            'less': [
-              'vue-style-loader',
-              {loader: 'css-loader', options: {importLoaders: 1}}, 'less-loader'
-            ],
-          }
-        }
-      },
-      {
         test: /\.css$/,
         use: [
           'style-loader', {loader: 'css-loader', options: {importLoaders: 1}}
@@ -56,8 +42,6 @@ module.exports = {
   },
   plugins: [
     new webpack.ProvidePlugin({jQuery: 'jquery', $: 'jquery'}),
-    // new HtmlWebpackPlugin(
-    //    {filename: 'index.html', template: 'src/index.html'})
   ],
   resolve: {
     alias: {
