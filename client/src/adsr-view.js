@@ -13,7 +13,8 @@ Vue.component('adsr-view', {
   },
   methods: {
     renderBackGround() {
-      let allTime = this.A + this.D + this.R;
+      const STime = 1.0;
+      let allTime = this.A + this.D + STime + this.R;
       let canvas = this.$el;
       let ctx = canvas.getContext('2d');
       let [w, h] = [canvas.width, canvas.height];
@@ -31,8 +32,10 @@ Vue.component('adsr-view', {
           let i2 = (i - wResolution * this.A / allTime);
           val = this.S +
               (1 - this.S) * (1 - i2 * allTime / (this.D) / wResolution);
+        } else if (i < wResolution * (this.A + STime + this.D) / allTime) {
+          val = this.S;
         } else {
-          let i3 = (i - wResolution * (this.A + this.D) / allTime);
+          let i3 = (i - wResolution * (this.A + this.D + STime) / allTime);
           val = this.S * (1 - i3 * allTime / this.R / wResolution);
         }
         val = 1 - val;
@@ -40,6 +43,7 @@ Vue.component('adsr-view', {
         const y = h * val;
         ctx.lineTo(x, y);
       }
+      ctx.lineTo(w, h);
       ctx.stroke();
     },
   }

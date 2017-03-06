@@ -112,10 +112,6 @@ export default class FM {
   }
   sendSocketMessage(status) {
     status.id = this.id;
-    console.log([
-      status.status, this.t / FM.sampleRate, status.info.startTime,
-      this.t / FM.sampleRate - status.info.startTime
-    ]);
     this.socket.emit('send_message', JSON.stringify(status));
   }
   receivedSocketMessage(text) {
@@ -123,7 +119,6 @@ export default class FM {
       const json = JSON.parse(text);
       const id = json.id;
       const hz = json.info.hz;
-      // console.log([json.status, json.info.startTime]);
       if (!(id in this.receivedInfos)) {
         this.receivedInfos[id] = {};
       }
