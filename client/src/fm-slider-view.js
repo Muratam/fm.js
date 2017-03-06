@@ -87,14 +87,26 @@ export default class FMSliderView {
           <fm-h-container v-for="y in ${FM.operatorNum}" :y="y-1"></fm-h-container>
         </table>
         <div>
-          <adsr-view :A=0.2 :D=0.05 :S=0.7 :R=0.2></adsr-view>
+          <adsr-view :A=A :D=D :S=S :R=R ></adsr-view>
           <div class="adsr-sliders">
-            <fm-adsr-slider v-for="index in ${defaultADSR.length}" :index="index-1">
+            <fm-adsr-slider v-for="index in ${defaultADSR.length}" :index="index-1"
+            @adsr-value-changed="adsrchanged">
             </fm-adsr-slider>
           </div>
         </div>
       </div>
       `,
+      data() {
+        return {
+          A: defaultADSR[0], D: defaultADSR[1], S: defaultADSR[2],
+              R: defaultADSR[3]
+        }
+      },
+      methods: {
+        adsrchanged(index, value) {
+          this[['A', 'D', 'S', 'R'][index]] = value;
+        }
+      },
       components: {
         'fm-adsr-slider': {
           template: `
@@ -124,6 +136,7 @@ export default class FMSliderView {
                 })
                 .on('change', (e) => {
                   this.value = e.value.newValue;
+                  this.$emit('adsr-value-changed', this.index, this.value);
                   fm.setADSR(this.index, this.value);
                 });
             fm.setADSR(this.index, this.value);
