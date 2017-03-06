@@ -16,13 +16,11 @@ import 'bootstrap-slider';
 import './lib/roundslider.min';
 
 import FM from './fm';
-import PianoView from './piano-view';
 import AmplitudeView from './amplitude-view';
 import FMSliderView from './fm-slider-view';
-import VPianoView from './vpiano-view';
+import PianoView from './piano-view';
 let fm = new FM();
-new VPianoView(fm);
-// new PianoView(fm);
+new PianoView(fm);
 new FMSliderView(fm);
 new AmplitudeView(fm);
 import Vue from 'vue';
