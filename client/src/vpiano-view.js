@@ -2,7 +2,33 @@ import FM from './fm';
 import $ from 'jquery';
 import Vue from 'vue';
 
-export default class VPianoView extends Vue {
+export default class VPianoView {
+  constructor(fm, name = 'piano') {
+    Vue.component(name, {
+      components: {
+        pianokey: {
+          props: ['msg'],
+          template: `<span class="piano-key"">
+              {{msg}}<br>{{ msg }}
+            </span>`,
+        }
+      },
+      data() { return {msg: 'VPiano'}; },
+      methods: {
+        log() {
+          this.msg += 'h ';
+          console.log(fm);
+        }
+      },
+      template: `
+      <div>
+        <pianokey v-for="p in 10" :msg=p>
+        </pianokey>
+      </div>
+      `,
+    });
+  }
+  /*
   //<div id="vpiano">
   //    <vpiano-key v-for="p in pianos()" :code="p.code" :keyboard="p.keyboard"
   //    :issharp="p.issharp" :hz="p.hz" :fm="p.fm">
@@ -71,5 +97,5 @@ export default class VPianoView extends Vue {
           </div>`,
       }
     });
-  }
+  }*/
 }
