@@ -1,5 +1,6 @@
 'use strict'
-// TODO: Safari のkeycode / 音階表 / フーリエ変換 /  オンライン音色セーブ
+// TODO: 音階表 /  オンライン音色セーブ / スライド <=> ヘルプ & フーリエ変換
+//  オフラインボタン
 // 全然いい感じの(無料の)FM音源サイトがない…！
 // http://www.hikari-ongaku.com/study/fm.html
 // http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm

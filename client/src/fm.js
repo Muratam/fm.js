@@ -1,10 +1,13 @@
 import FMInfo from './fm-info';
 import $ from 'jquery';
 import io from 'socket.io-client';
+import 'js-url';
+
 
 export default class FM {
   static get operatorNum() { return 6; }
   static get sampleRate() { return 44100; }
+  static get sliderDim() { return FM.operatorNum + 2; }
   static index2hx(i, base = 261.2) { return base * Math.pow(2, i / 12); }
   static makeMatrix(dim) {
     let res = [];
@@ -14,7 +17,6 @@ export default class FM {
     }
     return res;
   }
-
   constructor() {
     this.socket = io();
     this.socket.on(
@@ -28,7 +30,7 @@ export default class FM {
     this.node.onaudioprocess = (e) => { this.process(e) };
     this.gs = new Array(FM.operatorNum);
     this.oneTimeData = new Array(this.oneTimeLength);
-    this.sliderVals = FM.makeMatrix(FM.operatorNum + 2);
+    this.sliderVals = FM.makeMatrix(FM.sliderDim);
     this.adsr = [0.2, 0.05, 0.9, 0.2];
     this.released = {};
     this.sustainTime = 20;
@@ -58,15 +60,56 @@ export default class FM {
     for (let x = 0; x < FM.operatorNum; x++) res[x] = this.getRatio(x);
     return res;
   }
-  static getLocalStrageADSRKey(index) { return 'FMADSR' + index; }
-  setADSR(index, val) {
-    localStorage[FM.getLocalStrageADSRKey(index)] = val;
-    this.adsr[index] = val;
+  static getCurrentHistory() {
+    try {
+      let mat = JSON.parse(window.url('?mat', location.href));
+      for (let x = 0; x < mat.length; x++) {
+        for (let y = 0; y < mat[x].length; y++) {
+          if (typeof(mat[x][y]) !== 'number') throw 'mat bad type';
+        }
+        if (mat[x].length !== FM.sliderDim) throw 'mat bad length';
+      }
+      if (mat.length !== FM.sliderDim) throw 'mat bad length';
+
+      let adsr = JSON.parse(window.url('?adsr', location.href));
+      for (const adsr_i of adsr) {
+        if (typeof(adsr_i) !== 'number') throw 'adsr bad type';
+      }
+      if (adsr.length !== 4) throw 'adsr length bad';
+      return {mat: mat, adsr: adsr};
+    } catch (e) {
+      console.log(e);
+      history.replaceState('', '', '/');
+      return {mat: undefined, adsr: undefined};
+    }
   }
-  static getLocalStrageSliderKey(x, y) { return 'FMSliderVal' + x + ',' + y; }
-  setSliderVal(x, y, val) {
-    localStorage[FM.getLocalStrageSliderKey(x, y)] = val;
+  replaceHistory() {
+    let newState =
+        `?mat=${JSON.stringify(this.sliderVals)}&adsr=${JSON.stringify(this.adsr)}`;
+    history.replaceState('', '', newState);
+    if (!window.twttr) {
+      $('body').append(
+          '<a href="https://twitter.com/share" class="twitter-share-button" data-lang="ja"></a>');
+      var twitterjs = document.createElement('script');
+      twitterjs.async = true;
+      twitterjs.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('body')[0].appendChild(twitterjs);
+    } else {
+      $('.twitter-share-button')
+          .replaceWith(
+              '<a href="https://twitter.com/share" class="twitter-share-button" data-lang="ja" data-url="' +
+              encodeURI(location.href) + '" data-text="' + document.title +
+              '"></a>');
+      twttr.widgets.load();
+    }
+  }
+  setADSR(index, val, replaceHistory = true) {
+    this.adsr[index] = val;
+    if (replaceHistory) this.replaceHistory();
+  }
+  setSliderVal(x, y, val, replaceHistory = true) {
     this.sliderVals[x][y] = val;
+    if (replaceHistory) this.replaceHistory();
   }
   createInfo(hz, startTime, endTime) {
     return new FMInfo(

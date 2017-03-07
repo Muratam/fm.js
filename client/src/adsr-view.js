@@ -19,7 +19,7 @@ Vue.component('adsr-view', {
       let ctx = canvas.getContext('2d');
       let [w, h] = [canvas.width, canvas.height];
       ctx.clearRect(0, 0, w, h);
-      ctx.lineWidth = lineWidth * 5;
+      ctx.lineWidth = lineWidth * 3;
       ctx.strokeStyle = strokeColor;
       ctx.beginPath();
       ctx.moveTo(0, h);

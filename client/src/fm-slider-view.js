@@ -13,6 +13,7 @@ const tableRowHeadWidth = sliderSize / 2;
 
 export default class FMSliderView {
   constructor(fm, name = 'fm-sliders') {
+    const currentHistory = FM.getCurrentHistory();
     function getProperty(x, y) {
       let property = {
         radius: 22,
@@ -48,6 +49,9 @@ export default class FMSliderView {
       if (y === 0 && x === FM.operatorNum) {
         property.value = property.max;
       }
+      if (currentHistory['mat'] !== undefined) {
+        property.value = currentHistory['mat'][x][y];
+      }
       return property;
     }
     const slider = {
@@ -64,7 +68,7 @@ export default class FMSliderView {
         const property = getProperty(this.x, this.y);
         $(this.$el).find('.slider').roundSlider(property);
         $(this.$el).find('.edit').removeClass('edit');
-        fm.setSliderVal(this.x, this.y, property.value);
+        fm.setSliderVal(this.x, this.y, property.value, false);
       }
     };
     // a,d,r in [0,2] |s in [0,1]
@@ -124,6 +128,8 @@ export default class FMSliderView {
           props: ['index'],
           data() {
             let value = defaultADSR[this.index];
+            if (currentHistory['adsr'] !== undefined)
+              value = currentHistory['adsr'][this.index];
             return {value: value};
           },
           computed: {name() {
@@ -143,7 +149,7 @@ export default class FMSliderView {
                   this.$emit('adsr-value-changed', this.index, this.value);
                   fm.setADSR(this.index, this.value);
                 });
-            fm.setADSR(this.index, this.value);
+            fm.setADSR(this.index, this.value, false);
           }
         },
         'fm-h-container': {
