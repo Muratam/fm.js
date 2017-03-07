@@ -7,8 +7,10 @@ app.use(express.static('./client/root/'));
 
 io.on('connection', (socket) => {
   console.log(socket);
-  socket.on(
-      'send_message', (text) => { io.sockets.emit('receive_message', text); });
+  socket.on('send_message', (text) => {
+    console.log(text);
+    io.sockets.emit('receive_message', text);
+  });
 });
 
 let port = 3000;
