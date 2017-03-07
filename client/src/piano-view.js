@@ -1,6 +1,6 @@
 import FM from './fm';
 import Vue from 'vue';
-// props :: readonly, data::var
+import keyIDs from './keyids';
 
 export default class PianoView {
   constructor(fm, name = 'piano') {
@@ -34,9 +34,13 @@ export default class PianoView {
         pianokey: {
           created() {
             document.addEventListener(
-                'keydown', (e) => e.key === this.keyboard && this.press());
+                'keydown',
+                (e) => (e.key || keyIDs[e.keyIdentifier]) === this.keyboard &&
+                    this.press());
             document.addEventListener(
-                'keyup', (e) => e.key === this.keyboard && this.release());
+                'keyup',
+                (e) => (e.key || keyIDs[e.keyIdentifier]) === this.keyboard &&
+                    this.release());
           },
           props: ['code', 'keyboard', 'issharp', 'hz'],
           data() { return {ispressed: false}; },

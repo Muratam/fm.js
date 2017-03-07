@@ -121,7 +121,11 @@ export default class FMSliderView {
               </div>
             </div>
             `,
-          props: ['index'], data() { return {value: defaultADSR[this.index]}; },
+          props: ['index'],
+          data() {
+            let value = defaultADSR[this.index];
+            return {value: value};
+          },
           computed: {name() {
             return ['A', 'D', 'S', 'R'][this.index];
           }},

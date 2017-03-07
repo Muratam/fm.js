@@ -58,8 +58,16 @@ export default class FM {
     for (let x = 0; x < FM.operatorNum; x++) res[x] = this.getRatio(x);
     return res;
   }
-  setADSR(index, val) { this.adsr[index] = val; }
-  setSliderVal(x, y, val) { this.sliderVals[x][y] = val; }
+  static getLocalStrageADSRKey(index) { return 'FMADSR' + index; }
+  setADSR(index, val) {
+    localStorage[FM.getLocalStrageADSRKey(index)] = val;
+    this.adsr[index] = val;
+  }
+  static getLocalStrageSliderKey(x, y) { return 'FMSliderVal' + x + ',' + y; }
+  setSliderVal(x, y, val) {
+    localStorage[FM.getLocalStrageSliderKey(x, y)] = val;
+    this.sliderVals[x][y] = val;
+  }
   createInfo(hz, startTime, endTime) {
     return new FMInfo(
         hz, this.getOperators(), this.getVolumes(), this.getRatios(), this.adsr,
