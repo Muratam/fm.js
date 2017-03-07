@@ -1,6 +1,5 @@
 'use strict'
-// TODO: 音階表 /  オンライン音色セーブ / スライド <=> ヘルプ & フーリエ変換
-//  オフラインボタン
+// TODO: 音階表  / スライド <=> ヘルプ & フーリエ変換 / (音色セーブ)
 // 全然いい感じの(無料の)FM音源サイトがない…！
 // http://www.hikari-ongaku.com/study/fm.html
 // http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm

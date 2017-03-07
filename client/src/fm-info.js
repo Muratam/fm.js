@@ -16,7 +16,7 @@ export default class FMInfo {
         info.startTime, info.endTime);
   }
   calc(t, data) {
-    if (t / FM.sampleRate > this.endTime + this.adsr[3]) return;
+    if (t / FM.sampleRate > this.endTime + this.adsr[3]) return false;
     const toFq = (t) => 2 * Math.PI * t;
     const getM = (x, y) => {
       const val = this.operators[y][x] / 200 * 100;
@@ -39,6 +39,7 @@ export default class FMInfo {
       }
       data[i] += sum / 3 * this.byADSR(t / FM.sampleRate);
     }
+    return true;
   }
   byADSR(now) {
     const [a, d, s, r] = this.adsr;

@@ -5,6 +5,7 @@ import 'js-url';
 
 
 export default class FM {
+  static get maxSameTimeTuneNum() { return 10; }
   static get operatorNum() { return 6; }
   static get sampleRate() { return 44100; }
   static get sliderDim() { return FM.operatorNum + 2; }
@@ -125,17 +126,25 @@ export default class FM {
   process(e) {
     let data = e.outputBuffer.getChannelData(0);
     data.fill(0);  // chrome💢
+    let calcedCount = 0;
+    if (this.id in this.receivedInfos) {
+      let id = this.id;
+      for (const hz in this.receivedInfos[id]) {
+        let info = this.receivedInfos[id][hz];
+        info.operators = this.getOperators();
+        info.volumes = this.getVolumes();
+        info.ratios = this.getRatios();
+        info.adsr = this.adsr;
+        let calced = info.calc(this.t, data);
+        if (calced) calcedCount++;
+      }
+    }
     for (const id in this.receivedInfos) {
       for (const hz in this.receivedInfos[id]) {
-        if (id == this.id) {
-          // 自分のなら上書き
-          let info = this.receivedInfos[id][hz];
-          info.operators = this.getOperators();
-          info.volumes = this.getVolumes();
-          info.ratios = this.getRatios();
-          info.adsr = this.adsr;
-        }
-        this.receivedInfos[id][hz].calc(this.t, data);
+        if (calcedCount >= FM.maxSameTimeTuneNum) continue;
+        if (id == this.id) continue;
+        let calced = this.receivedInfos[id][hz].calc(this.t, data);
+        if (calced) calcedCount++;
       }
     }
     for (let i = 0; i < data.length; i++) this.oneTimeData[i] = data[i];
