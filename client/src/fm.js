@@ -8,6 +8,12 @@ export default class FM {
   static get operatorNum() { return 6; }
   static get sampleRate() { return 44100; }
   static get sliderDim() { return FM.operatorNum + 2; }
+  static calcTimeMS(func, name = '') {
+    const start = new Date().getTime();
+    func();
+    let time = new Date().getTime() - start;
+    console.log([name, time]);
+  }
   static index2hx(i, base = 261.2) { return base * Math.pow(2, i / 12); }
   static makeMatrix(dim) {
     let res = [];

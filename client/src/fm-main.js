@@ -1,6 +1,6 @@
 'use strict'
 // TODO: 音階表  / スライド <=> ヘルプ & フーリエ変換 / (音色セーブ)
-//       twitterbutton reload / use Map for infos•ª / test dellpc
+//       twitterbutton reload / use Map for infos•ª / test dellpc / edge
 //       最大同時鳴数 をタイムアウトまでに変更
 // 全然いい感じの(無料の)FM音源サイトがない…！
 // http://www.hikari-ongaku.com/study/fm.html
