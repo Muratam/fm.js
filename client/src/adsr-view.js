@@ -3,7 +3,13 @@ import {strokeColor, lineWidth} from './amplitude-view';
 
 Vue.component('adsr-view', {
   template: `<canvas style="width:100%;height:20px" ></canvas>`,
-  props: ['A', 'D', 'S', 'R'],
+  props: ['A', 'D', 'S', 'R'], data() { return {dirty: true}; },
+  watch: {
+    A() { this.dirty = true; },
+    D() { this.dirty = true; },
+    S() { this.dirty = true; },
+    R() { this.dirty = true; },
+  },
   mounted() {
     const renderLoop = () => {
       this.renderBackGround();
@@ -13,6 +19,8 @@ Vue.component('adsr-view', {
   },
   methods: {
     renderBackGround() {
+      if (!this.dirty) return;
+      this.dirty = false;
       const STime = 1.0;
       let allTime = this.A + this.D + STime + this.R;
       let canvas = this.$el;

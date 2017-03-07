@@ -1,11 +1,10 @@
 import FMInfo from './fm-info';
 import $ from 'jquery';
 import io from 'socket.io-client';
-import 'js-url';
-
+import parse from 'url-parse';
 
 export default class FM {
-  static get maxSameTimeTuneNum() { return 10; }
+  static get maxSameTimeTuneNum() { return 16; }
   static get operatorNum() { return 6; }
   static get sampleRate() { return 44100; }
   static get sliderDim() { return FM.operatorNum + 2; }
@@ -63,7 +62,7 @@ export default class FM {
   }
   static getCurrentHistory() {
     try {
-      let mat = JSON.parse(window.url('?mat', location.href));
+      let mat = JSON.parse(parse(location.href, true).query.mat);
       for (let x = 0; x < mat.length; x++) {
         for (let y = 0; y < mat[x].length; y++) {
           if (typeof(mat[x][y]) !== 'number') throw 'mat bad type';
@@ -72,7 +71,7 @@ export default class FM {
       }
       if (mat.length !== FM.sliderDim) throw 'mat bad length';
 
-      let adsr = JSON.parse(window.url('?adsr', location.href));
+      let adsr = JSON.parse(parse(location.href, true).query.adsr);
       for (const adsr_i of adsr) {
         if (typeof(adsr_i) !== 'number') throw 'adsr bad type';
       }
@@ -88,21 +87,16 @@ export default class FM {
     let newState =
         `?mat=${JSON.stringify(this.sliderVals)}&adsr=${JSON.stringify(this.adsr)}`;
     history.replaceState('', '', newState);
-    if (!window.twttr) {
-      $('body').append(
-          '<a href="https://twitter.com/share" class="twitter-share-button" data-lang="ja"></a>');
-      var twitterjs = document.createElement('script');
-      twitterjs.async = true;
-      twitterjs.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('body')[0].appendChild(twitterjs);
-    } else {
+    /*
+    if (window.twttr) {
       $('.twitter-share-button')
           .replaceWith(
-              '<a href="https://twitter.com/share" class="twitter-share-button" data-lang="ja" data-url="' +
+              '<a href="https://twitter.com/share" class="twitter-share-button"
+     data-url="' +
               encodeURI(location.href) + '" data-text="' + document.title +
               '"></a>');
       twttr.widgets.load();
-    }
+    }*/
   }
   setADSR(index, val, replaceHistory = true) {
     this.adsr[index] = val;

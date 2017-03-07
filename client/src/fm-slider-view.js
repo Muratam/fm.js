@@ -17,7 +17,7 @@ export default class FMSliderView {
     function getProperty(x, y) {
       let property = {
         radius: 22,
-        width: 5,
+        width: 11,
         handleSize: '+11',
         handleShape: 'dot',
         circleShape: 'pie',
@@ -31,7 +31,7 @@ export default class FMSliderView {
       };
       if (x === FM.operatorNum) {
         property.max = 100;
-        property.width = 11;
+        property.width = 5;
       } else if (x === FM.operatorNum + 1) {
         property.max = 11.0;
         property.min = 0.0125;
@@ -71,8 +71,10 @@ export default class FMSliderView {
         fm.setSliderVal(this.x, this.y, property.value, false);
       }
     };
-    // a,d,r in [0,2] |s in [0,1]
-    const defaultADSR = [0.2, 0.05, 0.9, 0.2];
+    const defaultADSR = currentHistory['adsr'] === undefined ?
+        [0.2, 0.05, 0.9, 0.2] :
+        currentHistory['adsr'];
+
     Vue.component(name, {
       template: `
       <div class="fm-sliders">
@@ -125,13 +127,7 @@ export default class FMSliderView {
               </div>
             </div>
             `,
-          props: ['index'],
-          data() {
-            let value = defaultADSR[this.index];
-            if (currentHistory['adsr'] !== undefined)
-              value = currentHistory['adsr'][this.index];
-            return {value: value};
-          },
+          props: ['index'], data() { return {value: defaultADSR[this.index]}; },
           computed: {name() {
             return ['A', 'D', 'S', 'R'][this.index];
           }},
