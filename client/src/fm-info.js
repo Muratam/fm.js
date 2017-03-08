@@ -32,25 +32,23 @@ export default class FMInfo {
     if (t / FM.sampleRate > this.endTime + this.adsr[3]) return false;
     const toFq = (t) => 2 * Math.PI * t;
     const matrix = this.getMaxtrix();
-    let gs = new Array(FM.operatorNum);
-    let ps = new Array(FM.operatorNum);
+    let gs = new Float32Array(FM.operatorNum);
+    let ps = new Float32Array(FM.operatorNum);
     gs.fill(0);
-    FM.calcTimeMS(() => {
-      for (let i = 0; i < data.length; ++i, t++) {
-        const now = (t * this.hz / FM.sampleRate);
-        let sum = 0;
-        for (let j = 0; j < FM.operatorNum; j++) ps[j] = gs[j];
-        for (let x = 0; x < FM.operatorNum; x++) {
-          let gsum = 0;
-          for (let y = 0; y < FM.operatorNum; y++) {
-            gsum += matrix[x][y] * ps[y];
-          }
-          gs[x] = Math.sin(toFq(now * this.ratios[x] + gsum));
-          sum += gs[x] * this.volumes[x] / 200;
+    for (let i = 0; i < data.length; ++i, ++t) {
+      const now = (t * this.hz / FM.sampleRate);
+      let sum = 0;
+      for (let j = 0; j < FM.operatorNum; j++) ps[j] = gs[j];
+      for (let x = 0; x < FM.operatorNum; x++) {
+        let gsum = 0;
+        for (let y = 0; y < FM.operatorNum; y++) {
+          gsum += matrix[x][y] * ps[y];
         }
-        data[i] += sum / 3 * this.byADSR(t / FM.sampleRate);
+        gs[x] = Math.sin(toFq(now * this.ratios[x] + gsum));
+        sum += gs[x] * this.volumes[x] / 200;
       }
-    }, 'calc');
+      data[i] += sum / 3 * this.byADSR(t / FM.sampleRate);
+    }
     return true;
   }
   byADSR(now) {

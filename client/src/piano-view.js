@@ -4,7 +4,7 @@ import keyIDs from './keyids';
 
 export default function(fm) {
   const isSharps = '010100101010';
-  const keys = 'awsedftgyhujkolp;:[]';
+  const keys = FM.pianoKeys;
   const codes =
       ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   const keyboardNum = keys.length;
@@ -16,7 +16,7 @@ export default function(fm) {
             code: codes[i % codes.length] + Math.floor(i / 12 + 4),
             keyboard: keys[i],
             issharp: isSharps[i % isSharps.length] == 1,
-            hz: FM.index2hx(i),
+            hz: FM.index2hz(i),
           }
         });
       },
@@ -46,7 +46,7 @@ export default function(fm) {
         template: `
           <span class="piano-key"
                 :class="{'sharp' :issharp,'piano-press':ispressed}"
-                @mouseenter="press" @mouseleave="release">
+                @mousedown="press" @mouseup="release" @mouseleave="release">
             {{code}}<br>{{ keyboard.toUpperCase() }}
           </span>`,
         methods: {
@@ -55,6 +55,7 @@ export default function(fm) {
             this.ispressed = true;
           },
           release() {
+            if (!this.ispressed) return;
             fm.release(this.hz);
             this.ispressed = false;
           },

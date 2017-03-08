@@ -2,11 +2,12 @@ import FMInfo from './fm-info';
 import $ from 'jquery';
 import io from 'socket.io-client';
 import parse from 'url-parse';
-
+import {renderNotesTime} from './amplitude-view';
 export default class FM {
   static get maxSameTimeTuneNum() { return 16; }
   static get operatorNum() { return 6; }
   static get sampleRate() { return 44100; }
+  static get pianoKeys() { return 'awsedftgyhujkolp;:[]'; }
   static get sliderDim() { return FM.operatorNum + 2; }
   static calcTimeMS(func, name = '') {
     const start = new Date().getTime();
@@ -14,12 +15,15 @@ export default class FM {
     let time = new Date().getTime() - start;
     console.log([name, time]);
   }
-  static index2hx(i, base = 261.2) { return base * Math.pow(2, i / 12); }
+  static get baseHz() { return 261.2; }
+  static id2hsl_h(id) { return id % 360; }
+  static index2hz(i) { return FM.baseHz * Math.pow(2, i / 12); }
+  static hz2index(hz) { return 12 * Math.log2(hz / FM.baseHz); }
   static makeMatrix(dim) {
-    let res = [];
+    let res = new Array(dim);
     for (let x = 0; x < dim; x++) {
-      res.push([]);
-      for (let y = 0; y < dim; y++) res[x].push(0);
+      res[x] = new Array(dim);
+      res[x].fill(0);
     }
     return res;
   }
@@ -40,7 +44,8 @@ export default class FM {
     this.adsr = [0.2, 0.05, 0.9, 0.2];
     this.released = {};
     this.sustainTime = 20;
-    this.receivedInfos = {};
+    this.receivedInfos = new Map();
+    this.preReceiveds = [];
     this.infos = {};
     this.play();
   }
@@ -76,7 +81,6 @@ export default class FM {
         if (mat[x].length !== FM.sliderDim) throw 'mat bad length';
       }
       if (mat.length !== FM.sliderDim) throw 'mat bad length';
-
       let adsr = JSON.parse(parse(location.href, true).query.adsr);
       for (const adsr_i of adsr) {
         if (typeof(adsr_i) !== 'number') throw 'adsr bad type';
@@ -85,13 +89,13 @@ export default class FM {
       return {mat: mat, adsr: adsr};
     } catch (e) {
       console.log(e);
-      history.replaceState('', '', '/');
+      history.replaceState('', '', './');
       return {mat: undefined, adsr: undefined};
     }
   }
   replaceHistory() {
     let newState =
-        `?mat=${JSON.stringify(this.sliderVals)}&adsr=${JSON.stringify(this.adsr)}`;
+        `./?mat=${JSON.stringify(this.sliderVals)}&adsr=${JSON.stringify(this.adsr)}`;
     history.replaceState('', '', newState);
     /*
     if (window.twttr) {
@@ -126,27 +130,29 @@ export default class FM {
   process(e) {
     let data = e.outputBuffer.getChannelData(0);
     data.fill(0);  // chrome💢
-    let calcedCount = 0;
-    if (this.id in this.receivedInfos) {
-      let id = this.id;
-      for (const hz in this.receivedInfos[id]) {
-        let info = this.receivedInfos[id][hz];
-        info.operators = this.getOperators();
-        info.volumes = this.getVolumes();
-        info.ratios = this.getRatios();
-        info.adsr = this.adsr;
-        let calced = info.calc(this.t, data);
-        if (calced) calcedCount++;
+    let allowTime =
+        new Date().getTime() / 1000 + data.length / FM.sampleRate * 0.8;
+    (() => {
+      if (this.id in this.receivedInfos) {
+        let id = this.id;
+        for (const hz in this.receivedInfos[id]) {
+          let info = this.receivedInfos[id][hz];
+          info.operators = this.getOperators();
+          info.volumes = this.getVolumes();
+          info.ratios = this.getRatios();
+          info.adsr = this.adsr;
+          info.calc(this.t, data);
+          if (allowTime - (new Date().getTime() / 1000) < 0) return;
+        }
       }
-    }
-    for (const id in this.receivedInfos) {
-      for (const hz in this.receivedInfos[id]) {
-        if (calcedCount >= FM.maxSameTimeTuneNum) continue;
-        if (id == this.id) continue;
-        let calced = this.receivedInfos[id][hz].calc(this.t, data);
-        if (calced) calcedCount++;
+      for (const id in this.receivedInfos) {
+        for (const hz in this.receivedInfos[id]) {
+          if (id == this.id) continue;
+          this.receivedInfos[id][hz].calc(this.t, data);
+          if (allowTime - (new Date().getTime() / 1000) < 0) return;
+        }
       }
-    }
+    })();
     for (let i = 0; i < data.length; i++) this.oneTimeData[i] = data[i];
     if (Math.random() < 0.1) {
       this.t = this.getNowT();
@@ -185,7 +191,13 @@ export default class FM {
       if (json.status === 'regist') {
         this.receivedInfos[id][hz] = FMInfo.create(json.info);
       } else if (json.status === 'release') {
-        this.receivedInfos[id][hz].endTime = json.info.endTime;
+        const startTime = this.receivedInfos[id][hz].startTime;
+        const endTime = json.info.endTime;
+        this.receivedInfos[id][hz].endTime = endTime;
+        this.preReceiveds.unshift([id, hz, startTime, endTime]);
+        const now = this.getNowT() / FM.sampleRate;
+        this.preReceiveds = this.preReceiveds.filter(
+            (v) => { return renderNotesTime - (now - v[3]) > 0; });
       }
     } catch (e) {
       console.log(e);
