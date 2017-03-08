@@ -1,11 +1,10 @@
-# how to build with webpack and start server
+# how to build with webpack
 
-```js
-$ npm install
-$ cd client
-$ npm install
+```sh
 $ npm run build
-$ cd ../
-$ npm start 31415
-$ # access localhost:31415 !!
+```
+
+# start server
+```sh
+$ npm start
 ```

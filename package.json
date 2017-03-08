@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development node app.js",
-    "start": "cross-env NODE_ENV=production node app.js"
+    "start": "cross-env NODE_ENV=production node app.js",
+    "build": "npm install && cd client && npm install && npm run build && cd ../ "
   },
   "repository": {
     "type": "git",
