@@ -115,7 +115,7 @@ export default class FM {
             <a href="https://twitter.com/share"
               class="twitter-share-button"
               data-url="${encodeURI(location.href)}"
-              data-text="${document.title}"></a>`);
+              data-text="fm.jsで音を創ってみた！ "></a>`);
           twttr.widgets.load();
         }
       }, 1000);

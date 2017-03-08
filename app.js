@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
   });
 });
 
-let port = process.argv[2] || 3000;
+let port = process.argv[2] || 31415;
 http.listen(port, function() {
   console.log(
       `Expressサーバーがポート${port}で起動しました。モード:${app.settings.env}`)
