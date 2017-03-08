@@ -51,7 +51,7 @@ export default function(fm) {
         ctx.beginPath();
         ctx.moveTo(0, h * 0.5);
         let isZero = true;
-        const dataLen = Math.min(fm.oneTimeData.length, 1024);
+        const dataLen = Math.min(fm.oneTimeData.length, 512);
         for (let i = 0; i < dataLen; i++) {
           const val = fm.oneTimeData[i];
           const x = w * i / dataLen;

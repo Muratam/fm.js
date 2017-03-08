@@ -6,6 +6,6 @@ $ cd client
 $ npm install
 $ npm run build
 $ cd ../
-$ node app.js
-$ # access localhost:3000 !!
+$ npm start 31415
+$ # access localhost:31415 !!
 ```

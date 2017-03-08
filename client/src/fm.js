@@ -145,8 +145,8 @@ export default class FM {
   process(e) {
     let data = e.outputBuffer.getChannelData(0);
     data.fill(0);
-    // let allowTime =
-    //    new Date().getTime() / 1000 + data.length / FM.sampleRate * 0.85;
+    let allowTime =
+        new Date().getTime() + data.length / FM.sampleRate * 1000 * 0.85;
     (() => {
       if (this.id in this.receivedInfos) {
         let id = this.id;
@@ -157,17 +157,17 @@ export default class FM {
           info.ratios = this.getRatios();
           info.adsr = this.adsr;
           info.calc(this.t, data);
-          // if (allowTime - (new Date().getTime() / 1000) < 0) return;
+          if (allowTime - new Date().getTime() < 0) return;
         }
       }
-      // console.log(allowTime - (new Date().getTime() / 1000));
       for (const id in this.receivedInfos) {
         for (const hz in this.receivedInfos[id]) {
           if (id == this.id) continue;
           this.receivedInfos[id][hz].calc(this.t, data);
-          // if (allowTime - (new Date().getTime() / 1000) < 0) return;
+          if (allowTime - (new Date().getTime()) < 0) return;
         }
       }
+      console.log(allowTime - new Date().getTime());
     })();
     for (let i = 0; i < data.length; i++) this.oneTimeData[i] = data[i];
     if (Math.random() < 0.1) {
