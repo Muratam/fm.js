@@ -44,11 +44,11 @@ export default function(fm) {
         props: ['code', 'keyboard', 'issharp', 'hz'],
         data() { return {ispressed: false}; },
         template: `
-          <span class="piano-key"
+          <div class="piano-key"
                 :class="{'sharp' :issharp,'piano-press':ispressed}"
                 @mousedown="press" @mouseup="release" @mouseleave="release">
-            {{code}}<br>{{ keyboard.toUpperCase() }}
-          </span>`,
+            <div>{{code}}<br>{{ keyboard.toUpperCase() }}</div>
+          </div>`,
         methods: {
           press() {
             fm.regist(this.hz);

@@ -18,10 +18,6 @@ io.on('connection', (socket) => {
   });
   socket.on('send_message', (text) => {
     // console.log(text);
-    try {
-      console.log(JSON.parse(text).info.startTime);
-    } catch (e) {
-    }
     io.sockets.emit('receive_message', text);
   });
 });

@@ -157,27 +157,39 @@ body{
     position: relative;
     border:@border;
     background: @border-color;
-    overflow: hidden;
     .piano-key {
         background: @pianokey-color;
         color: @font-dark-color;
-        text-align: center;
-        display: inline-flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-end;
+        display:inline-block;
         height: 100%;
         width: calc(100% / 13);
         margin: 1px;
         border-radius: 2px;
         transition: all 0.5s ease;
-    }
-    .sharp {
-        background: @pianosharpkey-color;
-        color: @piano-sharp-font-color;
-        height: 70%;
-        margin-left: calc(-50% / 20);
-        position: absolute;
+        @pianosharpHeight : 70%;
+        &:not(.sharp){
+            div{
+                position:relative;
+                top: @pianosharpHeight;
+                left :0%;
+                margin:auto;
+            }
+        }
+        &.sharp {
+            background: @pianosharpkey-color;
+            color: @piano-sharp-font-color;
+            height: @pianosharpHeight;
+            margin-left: calc(-50% / 20);
+            position: absolute;
+            div{
+                position:absolute;
+                bottom: 0;
+                left:0;
+                width:100%;
+                right:0;
+                margin:auto;
+            }
+        }
     }
     .piano-press{
         transition: all 0.05s ease;
