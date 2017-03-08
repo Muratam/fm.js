@@ -26,6 +26,7 @@
     "less-loader": "^2.2.3",
     "socket.io-client": "^1.7.3",
     "style-loader": "^0.13.2",
+    "underscore": "^1.8.3",
     "url-loader": "^0.5.8",
     "url-parse": "^1.1.8",
     "vue": "^2.2.1",

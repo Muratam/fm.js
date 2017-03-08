@@ -13,8 +13,8 @@ export default function(fm) {
       const renderLoop = () => {
         let [w, h] = [canvas.width, canvas.height];
         ctx.clearRect(0, 0, w, h);
-        this.renderNotes(ctx, w, h);
         this.renderAmplitude(ctx, w, h);
+        this.renderNotes(ctx, w, h);
         requestAnimationFrame(renderLoop);
       };
       renderLoop();

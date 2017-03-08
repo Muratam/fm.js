@@ -3,6 +3,8 @@ import $ from 'jquery';
 import io from 'socket.io-client';
 import parse from 'url-parse';
 import {renderNotesTime} from './amplitude-view';
+import * as underscore from 'underscore';
+
 export default class FM {
   static get maxSameTimeTuneNum() { return 16; }
   static get operatorNum() { return 6; }
@@ -94,20 +96,24 @@ export default class FM {
     }
   }
   replaceHistory() {
-    let newState =
-        `./?mat=${JSON.stringify(this.sliderVals)}&adsr=${JSON.stringify(this.adsr)}`;
-    history.replaceState('', '', newState);
-    /*
-    if (window.twttr) {
-      $('.twitter-share-button')
-          .replaceWith(
-              '<a href="https://twitter.com/share" class="twitter-share-button"
-     data-url="' +
-              encodeURI(location.href) + '" data-text="' + document.title +
-              '"></a>');
-      twttr.widgets.load();
-    }*/
+    if (!('replaceHistoryDebounced' in this)) {
+      this.replaceHistoryDebounced = underscore.debounce(function() {
+        let newState =
+            `./?mat=${JSON.stringify(this.sliderVals)}&adsr=${JSON.stringify(this.adsr)}`;
+        history.replaceState('', '', newState);
+        if (window.twttr) {
+          $(`.twitter-share-button`).replaceWith(`
+            <a href="https://twitter.com/share"
+              class="twitter-share-button"
+              data-url="${encodeURI(location.href)}"
+              data-text="${document.title}"></a>`);
+          twttr.widgets.load();
+        }
+      }, 720);
+    }
+    this.replaceHistoryDebounced();
   }
+
   setADSR(index, val, replaceHistory = true) {
     this.adsr[index] = val;
     if (replaceHistory) this.replaceHistory();
@@ -131,7 +137,7 @@ export default class FM {
     let data = e.outputBuffer.getChannelData(0);
     data.fill(0);  // chrome💢
     let allowTime =
-        new Date().getTime() / 1000 + data.length / FM.sampleRate * 0.8;
+        new Date().getTime() / 1000 + data.length / FM.sampleRate * 0.85;
     (() => {
       if (this.id in this.receivedInfos) {
         let id = this.id;
@@ -145,6 +151,7 @@ export default class FM {
           if (allowTime - (new Date().getTime() / 1000) < 0) return;
         }
       }
+      // console.log(allowTime - (new Date().getTime() / 1000));
       for (const id in this.receivedInfos) {
         for (const hz in this.receivedInfos[id]) {
           if (id == this.id) continue;
