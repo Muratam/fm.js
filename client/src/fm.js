@@ -33,6 +33,14 @@ export default class FM {
     this.socket = io();
     this.socket.on(
         'receive_message', (text) => {this.receivedSocketMessage(text)});
+    this.socket.on('fix_time', (text) => {this.fixTimeSocketMessage(text)});
+    this.fixTimeFunction = () => {
+      this.socket.emit(
+          'fix_time', JSON.stringify({id: this.id, pre: new Date().getTime()}));
+      setTimeout(this.fixTimeFunction, 5000);
+    };
+    this.fixTimeFunction();
+
     this.context = new (window.AudioContext || window.webkitAudioContext)();
     this.context.samplingRate = FM.sampleRate;
     this.oneTimeLength = 2048;
@@ -49,6 +57,7 @@ export default class FM {
     this.receivedInfos = new Map();
     this.preReceiveds = [];
     this.infos = {};
+    this.delayedTime = 0;
     this.play();
   }
   getOperator(x, y) { return this.sliderVals[x][y]; }
@@ -109,7 +118,7 @@ export default class FM {
               data-text="${document.title}"></a>`);
           twttr.widgets.load();
         }
-      }, 720);
+      }, 1000);
     }
     this.replaceHistoryDebounced();
   }
@@ -129,15 +138,15 @@ export default class FM {
   }
   getNowT() {
     return Math.round(
-               new Date().getTime() / 1000 * FM.sampleRate /
-               this.oneTimeLength) *
+               (new Date().getTime() / 1000 - this.delayedTime) *
+               FM.sampleRate / this.oneTimeLength) *
         this.oneTimeLength;
   }
   process(e) {
     let data = e.outputBuffer.getChannelData(0);
-    data.fill(0);  // chrome💢
-    let allowTime =
-        new Date().getTime() / 1000 + data.length / FM.sampleRate * 0.85;
+    data.fill(0);
+    // let allowTime =
+    //    new Date().getTime() / 1000 + data.length / FM.sampleRate * 0.85;
     (() => {
       if (this.id in this.receivedInfos) {
         let id = this.id;
@@ -148,7 +157,7 @@ export default class FM {
           info.ratios = this.getRatios();
           info.adsr = this.adsr;
           info.calc(this.t, data);
-          if (allowTime - (new Date().getTime() / 1000) < 0) return;
+          // if (allowTime - (new Date().getTime() / 1000) < 0) return;
         }
       }
       // console.log(allowTime - (new Date().getTime() / 1000));
@@ -156,7 +165,7 @@ export default class FM {
         for (const hz in this.receivedInfos[id]) {
           if (id == this.id) continue;
           this.receivedInfos[id][hz].calc(this.t, data);
-          if (allowTime - (new Date().getTime() / 1000) < 0) return;
+          // if (allowTime - (new Date().getTime() / 1000) < 0) return;
         }
       }
     })();
@@ -171,7 +180,7 @@ export default class FM {
   pause() { this.node.disconnect(); }
   regist(hz) {
     if (hz in this.released && !this.released[hz]) return;
-    const now = this.t / FM.sampleRate;
+    const now = this.getNowT() / FM.sampleRate;
     if (hz in this.infos && this.infos[hz].endTime >= now) return;
     this.released[hz] = false;
     this.infos[hz] = this.createInfo(hz, now, now + this.sustainTime);
@@ -180,12 +189,24 @@ export default class FM {
   release(hz) {
     this.released[hz] = true;
     this.infos[hz].endTime =
-        Math.min(this.t / FM.sampleRate, this.infos[hz].endTime);
+        Math.min(this.getNowT() / FM.sampleRate, this.infos[hz].endTime);
     this.sendSocketMessage({status: 'release', info: this.infos[hz]});
   }
   sendSocketMessage(status) {
     status.id = this.id;
     this.socket.emit('send_message', JSON.stringify(status));
+  }
+  fixTimeSocketMessage(text) {
+    try {
+      const json = JSON.parse(text);
+      if (json.id === this.id) {
+        this.delayedTime =
+            ((json.pre + (new Date().getTime())) / 2 - json.now) / 1000;
+        console.log(this.delayedTime);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
   receivedSocketMessage(text) {
     try {

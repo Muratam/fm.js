@@ -28,17 +28,17 @@ export default function() {
         let ctx = canvas.getContext('2d');
         let [w, h] = [canvas.width, canvas.height];
         ctx.clearRect(0, 0, w, h);
-        ctx.lineWidth = lineWidth * 3;
+        ctx.lineWidth = lineWidth * 5;
         ctx.strokeStyle = strokeColor;
-
         ctx.beginPath();
         ctx.moveTo(0, h);
         const a = this.A / allTime;
         ctx.lineTo(w * a, 0);
         const d = (this.A + this.D) / allTime;
-        ctx.lineTo(w * d, h - (h * this.S));
+        let y = h - (h * this.S);
+        ctx.lineTo(w * d, y);
         const s = (this.A + this.D + STime) / allTime;
-        ctx.lineTo(w * s, h - (h * this.S));
+        ctx.lineTo(w * s, y);
         ctx.lineTo(w, h);
         ctx.stroke();
       },

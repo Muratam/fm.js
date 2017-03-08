@@ -7,8 +7,21 @@ app.use(express.static('./client/root/'));
 
 io.on('connection', (socket) => {
   console.log(socket);
+  socket.on('fix_time', (text) => {
+    try {
+      const log = JSON.parse(text);
+      const res =
+          JSON.stringify({id: log.id, pre: log.pre, now: new Date().getTime()});
+      io.sockets.emit('fix_time', res);
+    } catch (e) {
+    }
+  });
   socket.on('send_message', (text) => {
-    console.log(text);
+    // console.log(text);
+    try {
+      console.log(JSON.parse(text).info.startTime);
+    } catch (e) {
+    }
     io.sockets.emit('receive_message', text);
   });
 });
