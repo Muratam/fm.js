@@ -167,7 +167,6 @@ export default class FM {
           if (allowTime - (new Date().getTime()) < 0) return;
         }
       }
-      console.log(allowTime - new Date().getTime());
     })();
     for (let i = 0; i < data.length; i++) this.oneTimeData[i] = data[i];
     if (Math.random() < 0.1) {
@@ -202,7 +201,6 @@ export default class FM {
       if (json.id === this.id) {
         this.delayedTime =
             ((json.pre + (new Date().getTime())) / 2 - json.now) / 1000;
-        console.log(this.delayedTime);
       }
     } catch (e) {
       console.log(e);
