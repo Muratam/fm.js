@@ -1,17 +1,4 @@
 'use strict'
-// TODO: スライド => ヘルプページ
-// 全然いい感じの(無料の)FM音源サイトがない…！
-// http://www.hikari-ongaku.com/study/fm.html
-// http://www.geocities.jp/brotherasazuke/sakekanworks/fm/16.htm
-// http://qiita.com/fukuroder/items/e1c2708222bbb51c7634
-// https://synth-voice.sakura.ne.jp/synth-voice/html5/voice-lab00.html
-// all webpack :
-// {OK:[Mac(Fx,Ch,Sf),Win(Fx,Ed),Ubuntu(Fx)],Bad:[Win(Ch),Ubuntu(Ch(マシ))]}
-// @core script :
-// {OK:[Mac(Fx,▼Ch,Sf),Win(Fx),Ubuntu(Fx)],Bad:[Win(Ed(別スクリプトを読めない?,Ch),Ubuntu(Ch))]}
-// => Firefox推奨 (動作確認済み:Safari,Edge)(Chrome)
-
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 import './css/style.less';
