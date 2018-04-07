@@ -1,7 +1,7 @@
 let express = require('express');
 let app = express();
 let http = require('http').Server(app);
-let io = require('socket.io')(http);
+let io = require('socket.io')(http, {path: '/fmsocket'});
 
 app.use(express.static('./client/root/'));
 
@@ -24,6 +24,6 @@ io.on('connection', (socket) => {
 
 let port = process.argv[2] || 31415;
 http.listen(port, function() {
-  console.log(
-      `Expressサーバーがポート${port}で起動しました。モード:${app.settings.env}`)
+  console.log(`Expressサーバーがポート${port}で起動しました。モード:${
+      app.settings.env}`)
 });
